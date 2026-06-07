@@ -1,7 +1,12 @@
+// import { useCrises } from './hooks';
+import { Navbar} from '@/shared/components/navbar';
 export default function Crises() {
+    // const { data: crises } = useCrises();
+  
     return (
-        <div>
-            <h1>Crises</h1>
+        <div className="h-screen w-screen bg-black">
+            <Navbar />
+            <span>CRISES</span>
         </div>
     );
 };
