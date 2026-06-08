@@ -4,7 +4,6 @@ import { Route, Switch, Redirect } from 'wouter-preact'
 import Home from '../features/shelters/home.tsx'
 import { ShelterPage } from '@/features/shelters/shelter.tsx'
 import { Suspense } from 'preact/compat'
-import { routes } from './routes.ts'
 import { AuthProvider } from '@/shared/contexts/useAuthContext.tsx'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 

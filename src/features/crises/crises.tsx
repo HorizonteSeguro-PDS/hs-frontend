@@ -13,6 +13,7 @@ export default function Crises() {
 
     return (
         <div>
+            <Navbar />
             <h1>Crises</h1>
             <div className="mt-4 flex gap-3">
                 <RegisterCrisisButton onClick={() => setCrisisModalOpen(true)} />
