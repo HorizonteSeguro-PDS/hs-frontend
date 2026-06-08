@@ -1,5 +1,5 @@
 import { useState } from 'preact/hooks';
-import { Navbar } from '@/shared/components/navbar';
+import { Navbar } from '@/shared/components/navbar/navbar';
 import { ShelterSidebar, type ShelterItem } from './shared/components/shelter-sidebar';
 import { TabMenu } from './shared/components/tab-menu';
 import { Overview } from './overview/overview';
