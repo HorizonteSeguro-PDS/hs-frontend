@@ -14,11 +14,11 @@ export const useLogin = () => {
             const userData = await loginUser(credentials.email, credentials.password);
 
             const currentUser: User = {
-                id: userData.id,
-                name: userData.name,
-                email: userData.email,
-                role: userData.role,
-                token: userData.token
+                id: userData.user.id,
+                name: userData.user.name,
+                email: userData.user.email,
+                role: userData.user.role,
+                token: userData.access_token,
             };
 
             return currentUser;
