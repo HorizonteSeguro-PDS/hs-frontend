@@ -14,6 +14,7 @@ const severityConfig: Record<number, { label: string; badgeColor: string; badgeB
 }
 
 function formatDate(dateStr: string): string {
+  if (!dateStr) return 'Não informada'
   const [year, month, day] = dateStr.split('T')[0].split('-')
   return `${day}/${month}/${year}`
 }
