@@ -2,6 +2,7 @@ import './app.css'
 import Crises from '../features/crises/crises.tsx'
 import { Route, Switch, Redirect } from 'wouter-preact'
 import Home from '../features/shelters/home.tsx'
+import { ShelterPage } from '@/features/shelters/shelter.tsx'
 
 export function App() {
 
@@ -16,7 +17,10 @@ export function App() {
         </Route>
         <Route path="/">
           <Redirect to="/home"/>
-        </Route>        
+        </Route>  
+        <Route path="/abrigo">
+          <ShelterPage/>
+        </Route>      
       </Switch>
     </>
   )
