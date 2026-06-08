@@ -1,5 +1,4 @@
 import { useState } from 'preact/hooks';
-import type { FunctionComponent } from 'preact';
 import { Navbar } from '@/shared/components/navbar';
 import { ShelterSidebar, type ShelterItem } from './shared/components/shelter-sidebar';
 import { TabMenu } from './shared/components/tab-menu';
@@ -22,17 +21,11 @@ const TABS = [
   { id: 'pessoas', label: 'Gestão de Pessoas' },
 ];
 
-const TAB_CONTENT: Record<string, FunctionComponent> = {
-  overview: Overview,
-  recursos: Recursos,
-  pessoas: Pessoas,
-};
-
 export function ShelterPage() {
   const [selectedShelterId, setSelectedShelterId] = useState(MOCK_SHELTERS[0].id);
   const [activeTab, setActiveTab] = useState(TABS[0].id);
 
-  const ActiveComponent = TAB_CONTENT[activeTab];
+  const selectedShelter = MOCK_SHELTERS.find((s) => s.id === selectedShelterId);
 
   return (
     <div className="flex flex-col min-h-screen bg-[#fafafa]">
@@ -50,7 +43,9 @@ export function ShelterPage() {
               <TabMenu tabs={TABS} activeTab={activeTab} onTabChange={setActiveTab} />
             </div>
             <div className="flex-1">
-              <ActiveComponent />
+              {activeTab === 'overview' && <Overview />}
+              {activeTab === 'recursos' && <Recursos />}
+              {activeTab === 'pessoas' && <Pessoas shelterName={selectedShelter?.name} />}
             </div>
           </div>
         </div>
