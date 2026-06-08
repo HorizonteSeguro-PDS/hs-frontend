@@ -44,7 +44,7 @@ export function ShelterPage() {
             </div>
             <div className="flex-1">
               {activeTab === 'overview' && <Overview />}
-              {activeTab === 'recursos' && <Recursos />}
+              {activeTab === 'recursos' && <Recursos shelterName={selectedShelter?.name} />}
               {activeTab === 'pessoas' && <Pessoas shelterName={selectedShelter?.name} />}
             </div>
           </div>
