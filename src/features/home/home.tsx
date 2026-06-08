@@ -1,4 +1,4 @@
-import { Navbar } from '@/shared/components/navbar';
+import { Navbar } from '@/shared/components/navbar/navbar';
 
 export default function Home() {
     return (
