@@ -22,29 +22,29 @@ interface PersonCardProps {
 
 export const PersonCard = ({ person, onRegisterExit }: PersonCardProps) => {
   return (
-    <div className="bg-white border border-black/10 rounded-[14px] flex flex-col w-[317px] shrink-0">
-      <div className="flex flex-col items-center pt-6 px-6">
-        <div className="bg-[#ececf0] rounded-full size-20 flex items-center justify-center mb-3">
-          <span className="text-[#0a0a0a] text-lg font-normal">
+    <div className="bg-white border border-black/10 rounded-[14px] flex flex-col w-full">
+      <div className="flex flex-col items-center pt-4 px-4">
+        <div className="bg-[#ececf0] rounded-full size-12 flex items-center justify-center mb-2">
+          <span className="text-[#0a0a0a] text-sm font-normal">
             {getInitials(person.name)}
           </span>
         </div>
         <div className="flex flex-col items-center">
-          <p className="text-[#0a0a0a] text-lg font-medium leading-[27px] text-center">
+          <p className="text-[#0a0a0a] text-sm font-medium leading-5 text-center">
             {person.name}
           </p>
-          <p className="text-[#717182] text-sm leading-5 pt-1 text-center">
+          <p className="text-[#717182] text-xs leading-4 pt-0.5 text-center">
             {person.age} anos
           </p>
         </div>
       </div>
-      <div className="flex items-center px-6 pb-6 mt-6">
+      <div className="flex items-center px-4 pb-4 mt-3">
         <button
           onClick={() => onRegisterExit(person.id)}
-          className="w-full flex items-center justify-center gap-2 border border-black/10 rounded-lg h-9 text-sm font-medium text-[#0a0a0a] hover:bg-gray-50 transition-colors cursor-pointer"
+          className="w-full flex items-center justify-center gap-1.5 border border-black/10 rounded-lg h-8 text-xs font-medium text-[#0a0a0a] hover:bg-gray-50 transition-colors cursor-pointer"
           style={{ color: '#A60000' }}
         >
-          <LogOut size={16} />
+          <LogOut size={14} />
           Registrar Saída
         </button>
       </div>

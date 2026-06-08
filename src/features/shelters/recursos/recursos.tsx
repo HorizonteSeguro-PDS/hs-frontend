@@ -1,11 +1,17 @@
 import { useState, useMemo } from 'preact/hooks';
-import { SlidersHorizontal, ArrowUpDown, Plus, Minus } from 'lucide-preact';
+import { SlidersHorizontal, ArrowUpDown } from 'lucide-preact';
 import {
   ResourcesTableRow,
   type Movimentacao,
 } from './shared/components/resources-table-row';
 import { SortModal, type SortConfig } from './shared/components/sort-modal';
 import { FilterModal, type FilterConfig } from './shared/components/filter-modal';
+import RegisterResourceButton from '../components/resources/RegisterResourceButton';
+import RegisterResourceModal from '../components/resources/RegisterResourceModal';
+import EntryResourceButton from '../components/resources/EntryResourceButton';
+import EntryResourceModal from '../components/resources/EntryResourceModal';
+import ExitResourceButton from '../components/resources/ExitResourceButton';
+import ExitResourceModal from '../components/resources/ExitResourceModal';
 
 const MOCK_MOVIMENTACOES: Movimentacao[] = [
   {
@@ -123,6 +129,9 @@ export const Recursos = ({ shelterName = 'Abrigo' }: RecursosProps) => {
   });
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [isRegisterOpen, setIsRegisterOpen] = useState(false);
+  const [isEntryOpen, setIsEntryOpen] = useState(false);
+  const [isExitOpen, setIsExitOpen] = useState(false);
 
   const sortLabel = sortConfig.field === 'data' ? 'Data' : 'Quantidade';
 
@@ -149,23 +158,23 @@ export const Recursos = ({ shelterName = 'Abrigo' }: RecursosProps) => {
 
   return (
     <div className="flex flex-col w-full h-full overflow-y-auto">
-      <div className="px-7 pt-6 pb-10 flex flex-col gap-8">
+      <div className="px-4 sm:px-6 pt-4 pb-8 flex flex-col gap-6">
         {/* Cabeçalho */}
-        <div className="flex items-start justify-between gap-6">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div className="flex flex-col gap-1">
-            <h1 className="text-[#0a0a0a] text-[40px] font-bold leading-tight">
+            <h1 className="text-[#0a0a0a] text-xl sm:text-2xl lg:text-3xl font-bold leading-tight">
               Gestão de Recursos —{' '}
               <span className="font-semibold">{shelterName}</span>
             </h1>
-            <p className="text-[#717182] text-lg">
+            <p className="text-[#717182] text-sm lg:text-base">
               Acompanhe as movimentações de entrada e saída de recursos
             </p>
           </div>
 
-          <div className="flex items-center gap-3 shrink-0 pt-1">
+          <div className="flex flex-wrap items-center gap-2.5 lg:shrink-0">
             <button
               onClick={() => setIsFilterOpen(true)}
-              className={`flex items-center gap-2 rounded-lg h-10 px-4 text-sm font-medium transition-colors cursor-pointer ${
+              className={`flex items-center gap-2 rounded-lg h-9 px-3.5 text-sm font-medium transition-colors cursor-pointer ${
                 hasActiveFilter
                   ? 'bg-[#eff6ff] text-[#2f7dbb] border border-[#2f7dbb]'
                   : 'bg-[#eceef2] text-[#030213] hover:bg-[#e0e2e8]'
@@ -178,42 +187,22 @@ export const Recursos = ({ shelterName = 'Abrigo' }: RecursosProps) => {
               )}
             </button>
 
-            <button
-              className="flex items-center gap-2 h-10 px-5 rounded-[10px] text-sm font-medium text-white transition-opacity hover:opacity-90 cursor-pointer"
-              style={{
-                background:
-                  'linear-gradient(0.65deg, #1FA6A0 2.66%, #2F7DBB 57.3%, #3555A3 96.87%)',
-                boxShadow: '0px 4px 12px rgba(47, 125, 187, 0.35)',
-              }}
-            >
-              <Plus size={18} />
-              Entrada de Recurso
-            </button>
-
-            <button
-              className="flex items-center gap-2 h-10 px-5 rounded-[10px] text-sm font-medium text-white transition-opacity hover:opacity-90 cursor-pointer"
-              style={{
-                background:
-                  'linear-gradient(189.6deg, #F68B5E 37.8%, #F5B84B 90.5%, #E75D5C 143.2%)',
-                boxShadow: '0px 4px 12px rgba(245, 73, 0, 0.3)',
-              }}
-            >
-              <Minus size={18} />
-              Saída de Recurso
-            </button>
+            <RegisterResourceButton onClick={() => setIsRegisterOpen(true)} />
+            <EntryResourceButton onClick={() => setIsEntryOpen(true)} />
+            <ExitResourceButton onClick={() => setIsExitOpen(true)} />
           </div>
         </div>
 
         {/* Tabela de Movimentações */}
         <div className="bg-white border border-black/10 rounded-2xl shadow-sm overflow-hidden">
           {/* Cabeçalho da tabela */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-black/5">
-            <h2 className="text-base font-bold text-[#0a0a0a]">Movimentações</h2>
+          <div className="flex items-center justify-between px-4 sm:px-6 py-3 border-b border-black/5">
+            <h2 className="text-sm font-bold text-[#0a0a0a]">Movimentações</h2>
             <button
               onClick={() => setIsSortOpen(true)}
-              className="flex items-center gap-2 bg-[#eceef2] rounded-lg h-9 px-3 text-[#030213] text-sm font-medium hover:bg-[#e0e2e8] transition-colors cursor-pointer"
+              className="flex items-center gap-2 bg-[#eceef2] rounded-lg h-8 px-3 text-[#030213] text-xs font-medium hover:bg-[#e0e2e8] transition-colors cursor-pointer"
             >
-              <ArrowUpDown size={15} />
+              <ArrowUpDown size={14} />
               Ordenar por {sortLabel}
             </button>
           </div>
@@ -235,7 +224,7 @@ export const Recursos = ({ shelterName = 'Abrigo' }: RecursosProps) => {
                   ].map((col) => (
                     <th
                       key={col}
-                      className="px-6 py-4 text-left text-sm font-semibold text-[#0a0a0a] whitespace-nowrap"
+                      className="px-4 sm:px-6 py-3 text-left text-xs font-semibold text-[#0a0a0a] whitespace-nowrap"
                     >
                       {col}
                     </th>
@@ -276,6 +265,33 @@ export const Recursos = ({ shelterName = 'Abrigo' }: RecursosProps) => {
         currentConfig={filterConfig}
         categorias={CATEGORIAS}
         onApply={setFilterConfig}
+      />
+
+      <RegisterResourceModal
+        open={isRegisterOpen}
+        onClose={() => setIsRegisterOpen(false)}
+        onSubmit={(data) => {
+          console.log('Cadastrar recurso:', data);
+          setIsRegisterOpen(false);
+        }}
+      />
+
+      <EntryResourceModal
+        open={isEntryOpen}
+        onClose={() => setIsEntryOpen(false)}
+        onSubmit={(data) => {
+          console.log('Entrada de recurso:', data);
+          setIsEntryOpen(false);
+        }}
+      />
+
+      <ExitResourceModal
+        open={isExitOpen}
+        onClose={() => setIsExitOpen(false)}
+        onSubmit={(data) => {
+          console.log('Saída de recurso:', data);
+          setIsExitOpen(false);
+        }}
       />
     </div>
   );

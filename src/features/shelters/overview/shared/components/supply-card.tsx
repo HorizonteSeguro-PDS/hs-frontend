@@ -18,12 +18,12 @@ export const SupplyCard = ({ name, quantity, percentage, level }: SupplyCardProp
   const clampedPct = Math.min(100, Math.max(0, percentage));
 
   return (
-    <div className="bg-white border border-black/10 rounded-[10px] shadow-sm flex flex-col p-7 w-full">
-      <p className="text-[#0a0a0a] text-[18px] font-semibold leading-snug">{name}</p>
-      <p className="text-[#717182] text-[15px] font-normal mt-3">{quantity}</p>
-      <div className="mt-5 bg-[#f3f4f6] rounded-full h-3 overflow-hidden w-full">
+    <div className="bg-white border border-black/10 rounded-[10px] shadow-sm flex flex-col p-4 w-full">
+      <p className="text-[#0a0a0a] text-sm font-semibold leading-snug">{name}</p>
+      <p className="text-[#717182] text-xs font-normal mt-1.5">{quantity}</p>
+      <div className="mt-3 bg-[#f3f4f6] rounded-full h-2 overflow-hidden w-full">
         <div
-          className="h-3 rounded-full transition-all"
+          className="h-2 rounded-full transition-all"
           style={{ width: `${clampedPct}%`, backgroundColor: barColor }}
         />
       </div>

@@ -7,16 +7,16 @@ const buttonGradient =
 
 export default function RegisterResourceButton({ onClick }: RegisterResourceButtonProps) {
   return (
-    <button type="button" onClick={onClick} className={`btn gap-2 border-none text-white ${buttonGradient}`}>
+    <button type="button" onClick={onClick} className={`btn btn-sm h-9 min-h-9 gap-1.5 border-none px-3.5 text-white ${buttonGradient}`}>
       <PlusIcon />
-      <span className="text-base font-medium leading-6">Cadastrar Recurso</span>
+      <span className="text-sm font-medium leading-5">Cadastrar Recurso</span>
     </button>
   )
 }
 
 function PlusIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+    <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
       <path d="M4.16602 10H15.8327" stroke="white" strokeWidth="1.66667" strokeLinecap="round" strokeLinejoin="round" />
       <path d="M10 4.1665V15.8332" stroke="white" strokeWidth="1.66667" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
