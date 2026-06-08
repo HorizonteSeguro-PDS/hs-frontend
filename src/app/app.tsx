@@ -1,7 +1,7 @@
 import './app.css'
 import Crises from '../features/crises/crises.tsx'
 import { Route, Switch, Redirect } from 'wouter-preact'
-import Home from '../features/home/home.tsx'
+import Home from '../features/shelters/home.tsx'
 
 export function App() {
 
