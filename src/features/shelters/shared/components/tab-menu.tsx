@@ -18,7 +18,7 @@ export const TabMenu = ({ tabs, activeTab, onTabChange }: TabMenuProps) => {
           <button
             key={tab.id}
             onClick={() => onTabChange(tab.id)}
-            className={`relative px-6 py-3 text-base font-semibold whitespace-nowrap transition-colors
+            className={`relative px-3 py-1.5 text-xs font-semibold whitespace-nowrap transition-colors
               ${index > 0 ? 'border-l border-black/10' : ''}
               ${isActive ? 'text-[#0a0a0a]' : 'text-[#717182]'}`}
           >

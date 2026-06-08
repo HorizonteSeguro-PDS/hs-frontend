@@ -50,15 +50,15 @@ export const Overview = () => {
 
   return (
     <div className="flex flex-col w-full h-full overflow-y-auto">
-      <div className="px-7 pt-6 pb-10 flex flex-col gap-12">
+      <div className="px-4 sm:px-6 pt-4 pb-8 flex flex-col gap-6">
         {/* Título */}
-        <h1 className="text-[#0a0a0a] text-[40px] font-bold leading-tight">
+        <h1 className="text-[#0a0a0a] text-xl sm:text-2xl lg:text-3xl font-bold leading-tight">
           Overview -{' '}
           <span className="font-semibold">{SHELTER_NAME}</span>
         </h1>
 
         {/* Seção 1 — Cards de estatísticas */}
-        <div className="flex flex-wrap gap-6">
+        <div className="flex flex-wrap gap-4">
           {STAT_CARDS.map((card) => (
             <StatCard
               key={card.label}
@@ -70,14 +70,14 @@ export const Overview = () => {
         </div>
 
         {/* Seção 2 — Status de Suprimentos */}
-        <div className="flex flex-col gap-6">
-          <h2 className="text-[#0a0a0a] text-[24px] font-bold leading-tight">
+        <div className="flex flex-col gap-4">
+          <h2 className="text-[#0a0a0a] text-lg sm:text-xl font-bold leading-tight">
             Status de Suprimentos Essenciais
           </h2>
 
           {/* Barra de busca e filtros */}
-          <div className="flex flex-wrap gap-4 items-center">
-            <div className="flex-1 min-w-[240px] flex items-center gap-3 border border-black/10 rounded-[10px] px-4 py-3 bg-white">
+          <div className="flex flex-wrap gap-3 items-center">
+            <div className="flex-1 min-w-[200px] flex items-center gap-3 border border-black/10 rounded-[10px] px-3 py-2 bg-white">
               <Search size={16} className="text-[#717182] shrink-0" />
               <input
                 type="text"
@@ -93,7 +93,7 @@ export const Overview = () => {
                 <button
                   key={key}
                   onClick={() => setActiveFilter(key)}
-                  className={`px-5 py-3 rounded-[10px] text-sm font-semibold transition-colors ${
+                  className={`px-4 py-2 rounded-[10px] text-sm font-semibold transition-colors ${
                     activeFilter === key
                       ? 'bg-[#2f7dbb] text-white'
                       : 'bg-white border border-black/10 text-[#717182] hover:bg-[#f3f4f6]'
@@ -107,7 +107,7 @@ export const Overview = () => {
 
           {/* Grid de cards de suprimento */}
           {filteredSupplies.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
               {filteredSupplies.map((supply) => (
                 <SupplyCard
                   key={supply.id}

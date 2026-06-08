@@ -13,9 +13,9 @@ export default function DropdownNavbar({ user }: DropdownNavbarProps) {
     return (
         <div className="dropdown dropdown-end dropdown-bottom relative select-none py-2">
             <div tabIndex={0} role="button" className="flex items-center gap-4">
-                <CircleUserRound size={40} />
+                <CircleUserRound size={24} />
                 <span>{user?.name || 'Visitante'}</span>
-                <ChevronDown size={20} className=""/>
+                <ChevronDown size={16} className=""/>
             </div>
             <ul className="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm" tabIndex={0}>
                 {user ? (
