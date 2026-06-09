@@ -1,5 +1,6 @@
-import { getShelters, createShelter } from './api';
+import { getShelters, createShelter, type CreateShelterPayload } from './api';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '@/shared/contexts/useAuthContext';
 
 export const useShelters = (crisis_id: string) => {
   return useQuery({
@@ -13,8 +14,9 @@ export const useShelters = (crisis_id: string) => {
 
 export const useCreateShelter = (crisis_id: string) => {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
   return useMutation({
-    mutationFn: createShelter,
+    mutationFn: (payload: CreateShelterPayload) => createShelter(payload, user.value?.token),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['shelters', crisis_id] });
     },

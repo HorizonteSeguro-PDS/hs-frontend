@@ -4,6 +4,7 @@ export interface Person {
   id: string;
   name: string;
   age: number;
+  vulnerabilities?: string;
 }
 
 function getInitials(name: string): string {

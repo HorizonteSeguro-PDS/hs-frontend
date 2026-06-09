@@ -11,7 +11,7 @@ interface EntryResourceModalProps {
 const lotCategoryOptions = [
   { value: 'essenciais', label: 'Essenciais' },
   { value: 'saude', label: 'Saúde' },
-  { value: 'infantil-idosos', label: 'Infantil e Idosos' },
+  { value: 'infantil_e_idosos', label: 'Infantil e Idosos' },
   { value: 'animais', label: 'Animais' },
   { value: 'infraestrutura', label: 'Infraestrutura' },
   { value: 'operacao', label: 'Operação' },

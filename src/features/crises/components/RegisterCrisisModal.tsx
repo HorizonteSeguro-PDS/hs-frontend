@@ -8,21 +8,30 @@ interface RegisterCrisisModalProps {
 
 interface CrisisRegistrationFormData {
   crisisName: string
+  type: string
   severity: string
   state: string
   city: string
   startDate: string
-  active: boolean
+  status: 'active' | 'closed'
 }
 
 const initialFormData: CrisisRegistrationFormData = {
   crisisName: '',
+  type: '',
   severity: '',
   state: '',
   city: '',
   startDate: '',
-  active: true,
+  status: 'active',
 }
+
+const typeOptions = [
+  { value: 'flood', label: 'Enchente' },
+  { value: 'fire', label: 'Incêndio' },
+  { value: 'landslide', label: 'Deslizamento' },
+  { value: 'other', label: 'Outro' },
+]
 
 const severityOptions = [
   { value: 'MUITO BAIXA', label: 'Muito Baixa' },
@@ -51,11 +60,12 @@ export default function RegisterCrisisModal({ open, onClose }: RegisterCrisisMod
     createCrisis(
       {
         name: formData.crisisName,
+        type: formData.type,
         severity: formData.severity,
         state: formData.state,
         city: formData.city,
         start_date: formData.startDate,
-        active: formData.active,
+        status: formData.status,
       },
       { onSuccess: handleClose },
     )
@@ -96,7 +106,16 @@ export default function RegisterCrisisModal({ open, onClose }: RegisterCrisisMod
               />
             </Question>
 
-            <Question number={2} label="Qual a severidade da crise?">
+            <Question number={2} label="Qual o tipo da crise?">
+              <Select
+                placeholder="Selecione o tipo..."
+                value={formData.type}
+                options={typeOptions}
+                onChange={(value) => updateField('type', value)}
+              />
+            </Question>
+
+            <Question number={3} label="Qual a severidade da crise?">
               <Select
                 placeholder="Selecione a severidade..."
                 value={formData.severity}
@@ -105,7 +124,7 @@ export default function RegisterCrisisModal({ open, onClose }: RegisterCrisisMod
               />
             </Question>
 
-            <Question number={3} label="Onde a crise está ocorrendo?">
+            <Question number={4} label="Onde a crise está ocorrendo?">
               <div className="flex flex-col gap-3">
                 <Input
                   placeholder="Digite o estado..."
@@ -120,7 +139,7 @@ export default function RegisterCrisisModal({ open, onClose }: RegisterCrisisMod
               </div>
             </Question>
 
-            <Question number={4} label="Qual a data de início da crise?">
+            <Question number={5} label="Qual a data de início da crise?">
               <Input
                 type="date"
                 placeholder="Selecione a data..."
@@ -129,16 +148,16 @@ export default function RegisterCrisisModal({ open, onClose }: RegisterCrisisMod
               />
             </Question>
 
-            <Question number={5} label="Essa crise está ativa?">
-              <label className="flex items-center gap-3">
-                <input
-                  type="checkbox"
-                  checked={formData.active}
-                  onChange={(event) => updateField('active', (event.target as HTMLInputElement).checked)}
-                  className="toggle border-[#0A0A0A33] [--tglbg:#fff] checked:bg-[#1FA6A0] checked:border-[#1FA6A0]"
-                />
-                <span className="text-sm text-[#0A0A0A80]">{formData.active ? 'Ativa' : 'Inativa'}</span>
-              </label>
+            <Question number={6} label="Qual o status inicial da crise?">
+              <Select
+                placeholder="Selecione o status..."
+                value={formData.status}
+                options={[
+                  { value: 'active', label: 'Ativa' },
+                  { value: 'closed', label: 'Encerrada' },
+                ]}
+                onChange={(value) => updateField('status', value as 'active' | 'closed')}
+              />
             </Question>
           </div>
         </div>

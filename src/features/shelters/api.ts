@@ -16,7 +16,8 @@ export interface ApiResource {
   name: string
   quantity: number
   unit: string
-  destined_to: string
+  source: string | null
+  created_by: string | null
 }
 
 export interface ApiPerson {
@@ -128,11 +129,15 @@ export async function createMovement(shelter_id: string, payload: MovementPayloa
   if (!response.ok) throw new Error('Failed to create movement')
 }
 
+export type VulnerabilityType = 'child' | 'elderly' | 'pregnant' | 'disabled' | 'chronic_illness' | 'none' | 'other'
+
 export interface CheckInPayload {
   name: string
   cpf: string
   birth_date: string
   phone?: string
+  vulnerability?: VulnerabilityType
+  notes?: string
 }
 
 export async function checkIn(shelter_id: string, payload: CheckInPayload, token: string): Promise<void> {

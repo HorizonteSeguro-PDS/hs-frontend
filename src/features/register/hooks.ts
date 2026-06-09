@@ -13,5 +13,10 @@ export const useRegisterExistingOrg = () =>
 export const useRegisterNewOrg = () =>
   useMutation<unknown, unknown, RegisterNewOrgPayload>({ mutationFn: registerNewOrg, onError: onRegisterError });
 
-export const useOrganizations = (enabled = true) =>
-  useQuery({ queryKey: ['organizations'], queryFn: fetchOrganizations, enabled });
+export const useOrganizations = (query: string, enabled = true) =>
+  useQuery({
+    queryKey: ['organizations', query],
+    queryFn: () => fetchOrganizations(query),
+    enabled,
+    staleTime: 30_000,
+  });

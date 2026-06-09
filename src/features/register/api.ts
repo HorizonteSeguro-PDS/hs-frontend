@@ -46,8 +46,9 @@ export const registerNewOrg = async (payload: RegisterNewOrgPayload): Promise<an
   return response.json();
 };
 
-export const fetchOrganizations = async (): Promise<Organization[]> => {
-  const response = await fetch(`${apiUrl}/organizations`);
+export const fetchOrganizations = async (query?: string): Promise<Organization[]> => {
+  const params = query ? `?q=${encodeURIComponent(query)}` : '';
+  const response = await fetch(`${apiUrl}/organizations/search${params}`);
   if (!response.ok) throw new Error('Erro ao buscar organizações');
   return response.json();
 };
