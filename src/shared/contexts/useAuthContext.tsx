@@ -1,6 +1,6 @@
 import { createContext } from 'preact';
 import type { ComponentChildren } from 'preact';
-import { useContext} from 'preact/hooks';
+import { useContext } from 'preact/hooks';
 import { signal, Signal } from '@preact/signals';
 
 export interface User {
@@ -22,24 +22,24 @@ interface AuthContextType {
     logout: () => void;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const STORAGE_KEY = 'hs_auth_user';
 
-const getInitialUser = (): User | null => {
-    if (typeof window === 'undefined') return null;
+function loadFromStorage(): User | null {
     try {
-        const savedUser = localStorage.getItem('auth_user');
-        return savedUser ? JSON.parse(savedUser) : null;
-    } catch (error) {
-        console.error("Erro ao ler usuário do localStorage:", error);
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? (JSON.parse(raw) as User) : null;
+    } catch {
         return null;
     }
-};
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ComponentChildren }) => {
-    const initialUser = getInitialUser();
-    const user = signal<User | null>(initialUser);
+    const stored = loadFromStorage();
+    const user = signal<User | null>(stored);
     const loading = signal(false);
-    const isAuthenticated = signal(false);
+    const isAuthenticated = signal(stored !== null);
 
     const hasRole = (role: string) => {
         return user.value?.role?.includes(role) || false;
@@ -54,13 +54,13 @@ export const AuthProvider = ({ children }: { children: ComponentChildren }) => {
     const login = (currentUser: User) => {
         user.value = currentUser;
         isAuthenticated.value = true;
-        localStorage.setItem('auth_user', JSON.stringify(currentUser));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(currentUser));
     };
 
     const logout = () => {
         user.value = null;
         isAuthenticated.value = false;
-        localStorage.removeItem('auth_user');
+        localStorage.removeItem(STORAGE_KEY);
     };
 
     return (

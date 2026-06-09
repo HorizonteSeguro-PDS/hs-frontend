@@ -1,14 +1,19 @@
 import { ChevronDown, CircleUserRound } from 'lucide-preact';
+import { Link } from 'wouter-preact';
 import type { User } from '@/shared/contexts/useAuthContext';
-import { useLogin } from '@/features/auth/hooks';
+import { useAuth } from '@/shared/contexts/useAuthContext';
 
 interface DropdownNavbarProps {
     user: User | undefined | null;
 }
 
 export default function DropdownNavbar({ user }: DropdownNavbarProps) {
+    const { logout } = useAuth();
 
-    const { mutate:login, isPending: isLoginPending } = useLogin();
+    function handleLogout() {
+        logout();
+        window.location.reload();
+    }
 
     return (
         <div className="dropdown dropdown-end dropdown-bottom relative select-none py-2">
@@ -21,22 +26,27 @@ export default function DropdownNavbar({ user }: DropdownNavbarProps) {
                 {user ? (
                     <>
                         <li><a className="btn btn-ghost justify-start">Perfil</a></li>
-                        <li><a className="btn btn-ghost justify-start">Sair</a></li>
+                        {user?.role?.includes('crisis_manager') && (
+                            <li>
+                                <Link href="/solicitacoes" className="btn btn-ghost justify-start">
+                                    Solicitações
+                                </Link>
+                            </li>
+                        )}
+                        <li><a className="btn btn-ghost justify-start" onClick={handleLogout}>Sair</a></li>
                     </>
                 ):(
                     <>
                         <li>
-                            <a className="btn btn-ghost justify-start"
-                                onClick={() =>
-                                    login({ 
-                                        email: 'gestor.crise@horizonteseguro.app',
-                                        password: 'admin1234'
-                                    })}
-                            >
-                                {isLoginPending ? 'Entrando...' : 'Entrar'}
-                            </a>
+                            <Link href="/login" className="btn btn-ghost justify-start">
+                                Entrar
+                            </Link>
                         </li>
-                        <li><a className="btn btn-ghost justify-start">Registrar</a></li>
+                        <li>
+                            <Link href="/register" className="btn btn-ghost justify-start">
+                                Registrar
+                            </Link>
+                        </li>
                     </>
                 )}
             </ul>
