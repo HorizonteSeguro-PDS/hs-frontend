@@ -210,7 +210,6 @@ export const Recursos = ({ shelterName = 'Abrigo', shelterId = '', resources = [
         onClose={() => setIsRegisterOpen(false)}
       />
 
->>>>>>> develop
       <EntryResourceModal
         open={isEntryOpen}
         shelterId={shelterId}
