@@ -35,7 +35,7 @@ export function CrisisSidebar({ crisis, people_count }: CrisisSidebarProps) {
   return (
     <div className="bg-white border border-[rgba(0,0,0,0.1)] rounded-[14px] p-5 flex flex-col gap-5 w-[270px] shrink-0 self-start">
       <button
-        onClick={() => navigate('/crises')}
+        onClick={() => navigate('/crises/all')}
         className="flex items-center gap-1.5 text-sm text-[#717182] hover:text-[#0a0a0a] transition-colors w-fit cursor-pointer"
       >
         <ArrowLeft size={15} />

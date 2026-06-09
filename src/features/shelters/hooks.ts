@@ -27,20 +27,21 @@ export function useCrisisOperations(crisis_id: string | null) {
     queryFn: async () => {
       try {
         const data = await fetchCrisisOperations(crisis_id!)
-        // Cache o payload inteiro — supplies, resources e people incluídos
-        await db.operationsCache.put({
+        db.operationsCache.put({
           crisis_id: crisis_id!,
           payload: data,
           cached_at: new Date().toISOString(),
-        })
+        }).catch((e) => console.error('[Dexie] operationsCache.put failed:', e))
         return data
-      } catch {
+      } catch (fetchErr) {
+        console.warn('[offline] fetch falhou, tentando cache:', fetchErr)
         const cached = await db.operationsCache.get(crisis_id!)
         if (cached) return cached.payload as Awaited<ReturnType<typeof fetchCrisisOperations>>
         throw new Error('Sem conexão e nenhum dado em cache.')
       }
     },
     enabled: !!crisis_id,
+    retry: false,
     staleTime: 2 * 60 * 1000,
   })
 }

@@ -42,7 +42,7 @@ export const ShelterSidebar = ({
     <aside className="bg-white border border-black/10 rounded-2xl shadow-sm w-full lg:w-[240px] lg:shrink-0 flex flex-col max-h-[70vh] lg:max-h-none">
       <div className="border-b border-black/10 px-4 py-3">
         <button
-          onClick={() => navigate(crisisId ? `/crises/${crisisId}` : '/crises')}
+          onClick={() => navigate(crisisId ? `/crises/${crisisId}` : '/crises/all')}
           className="flex items-center gap-1 text-xs text-[#717182] hover:text-[#0a0a0a] transition-colors mb-1.5 w-fit cursor-pointer"
         >
           <ChevronLeft size={14} />

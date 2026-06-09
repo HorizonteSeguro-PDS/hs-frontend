@@ -109,6 +109,7 @@ export function initConnectionListener(): void {
   });
   window.addEventListener('offline', () => {
     isOnline.value = false;
+    refreshPendingCount();
   });
 
   // Flush any leftovers from a previous session on startup

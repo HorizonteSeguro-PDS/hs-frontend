@@ -36,7 +36,7 @@ export function ShelterPage() {
   const crisis_id = params.get('crisis_id');
   const shelter_id = params.get('shelter_id');
 
-  const { data: crisis, isLoading } = useCrisisOperations(crisis_id);
+  const { data: crisis, isLoading, isError } = useCrisisOperations(crisis_id);
 
   const shelters: ShelterItem[] = crisis?.shelters.map(toShelterItem) ?? [];
 
@@ -57,6 +57,11 @@ export function ShelterPage() {
         ) : isLoading ? (
           <div className="flex-1 flex items-center justify-center text-sm text-[#717182]">
             Carregando operações...
+          </div>
+        ) : isError ? (
+          <div className="flex-1 flex flex-col items-center justify-center gap-2 text-center">
+            <p className="text-sm font-medium text-[#0a0a0a]">Sem conexão</p>
+            <p className="text-xs text-[#717182]">Conecte-se à internet para carregar os dados deste abrigo.</p>
           </div>
         ) : (
           <div className="flex flex-col lg:flex-row gap-4 flex-1">
