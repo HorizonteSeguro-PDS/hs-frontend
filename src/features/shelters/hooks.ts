@@ -1,5 +1,78 @@
 import { useEffect, useState } from 'preact/hooks'
-import { lookupCep, searchAddress, type AddressResult, type CepAddress } from './api'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import {
+  lookupCep, searchAddress, fetchCrisisOperations, fetchShelterDetail,
+  fetchResourceCategories, createInitialStock, createMovement, checkIn, checkOut,
+  type AddressResult, type CepAddress, type InitialStockPayload, type MovementPayload, type CheckInPayload,
+} from './api'
+import { useAuth } from '@/shared/contexts/useAuthContext'
+
+export function useCrisisOperations(crisis_id: string | null) {
+  return useQuery({
+    queryKey: ['crisis-operations', crisis_id],
+    queryFn: () => fetchCrisisOperations(crisis_id!),
+    enabled: !!crisis_id,
+  })
+}
+
+export function useShelterDetail(shelter_id: string | null) {
+  const { user } = useAuth()
+  const token = user.value?.token ?? ''
+  return useQuery({
+    queryKey: ['shelter-detail', shelter_id],
+    queryFn: () => fetchShelterDetail(shelter_id!, token),
+    enabled: !!shelter_id,
+  })
+}
+
+export function useResourceCategories(lot_category?: string) {
+  const { user } = useAuth()
+  const token = user.value?.token ?? ''
+  return useQuery({
+    queryKey: ['resource-categories', lot_category],
+    queryFn: () => fetchResourceCategories(token, lot_category),
+    enabled: !!lot_category,
+  })
+}
+
+export function useInitialStock(shelter_id: string) {
+  const { user } = useAuth()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (payload: InitialStockPayload) =>
+      createInitialStock(shelter_id, payload, user.value?.token ?? ''),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['crisis-operations'] }),
+  })
+}
+
+export function useCreateMovement(shelter_id: string) {
+  const { user } = useAuth()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (payload: MovementPayload) =>
+      createMovement(shelter_id, payload, user.value?.token ?? ''),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['crisis-operations'] }),
+  })
+}
+
+export function useCheckIn(shelter_id: string) {
+  const { user } = useAuth()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (payload: CheckInPayload) =>
+      checkIn(shelter_id, payload, user.value?.token ?? ''),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['crisis-operations'] }),
+  })
+}
+
+export function useCheckOut(shelter_id: string) {
+  const { user } = useAuth()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (cpf: string) => checkOut(shelter_id, cpf, user.value?.token ?? ''),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['crisis-operations'] }),
+  })
+}
 
 export function useAddressSearch(query: string) {
   const [results, setResults] = useState<AddressResult[]>([])

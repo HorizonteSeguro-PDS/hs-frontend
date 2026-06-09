@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'preact/hooks';
 import { SlidersHorizontal, ArrowUpDown } from 'lucide-preact';
+import { useAuth } from '@/shared/contexts/useAuthContext';
 import {
   ResourcesTableRow,
   type Movimentacao,
@@ -12,102 +13,25 @@ import EntryResourceButton from '../components/resources/EntryResourceButton';
 import EntryResourceModal from '../components/resources/EntryResourceModal';
 import ExitResourceButton from '../components/resources/ExitResourceButton';
 import ExitResourceModal from '../components/resources/ExitResourceModal';
+import type { ApiResource } from '../api';
 
-const MOCK_MOVIMENTACOES: Movimentacao[] = [
-  {
-    id: '1',
-    data: '02/06/2026',
-    hora: '14:30',
-    tipo: 'entrada',
-    categoria: 'Alimentos',
-    recurso: 'Arroz',
-    quantidade: 50,
-    unidade: 'kg',
-    responsavel: 'Maria Silva',
-  },
-  {
-    id: '2',
-    data: '02/06/2026',
-    hora: '13:15',
-    tipo: 'saida',
-    categoria: 'Medicamentos',
-    recurso: 'Dipirona',
-    quantidade: 100,
-    unidade: 'unidades',
-    responsavel: 'João Santos',
-    abrigoDestino: 'Escola Estadual Ponta Verde',
-  },
-  {
-    id: '3',
-    data: '02/06/2026',
-    hora: '11:45',
-    tipo: 'entrada',
-    categoria: 'Higiene',
-    recurso: 'Sabonete',
-    quantidade: 200,
-    unidade: 'unidades',
-    responsavel: 'Ana Costa',
-  },
-  {
-    id: '4',
-    data: '01/06/2026',
-    hora: '16:20',
-    tipo: 'entrada',
-    categoria: 'Vestuário',
-    recurso: 'Cobertores',
-    quantidade: 30,
-    unidade: 'unidades',
-    responsavel: 'Pedro Lima',
-  },
-  {
-    id: '5',
-    data: '01/06/2026',
-    hora: '15:00',
-    tipo: 'saida',
-    categoria: 'Alimentos',
-    recurso: 'Água Mineral',
-    quantidade: 120,
-    unidade: 'litros',
-    responsavel: 'Maria Silva',
-    abrigoDestino: 'Quadra Poliesportiva Tabuleiro',
-  },
-  {
-    id: '6',
-    data: '01/06/2026',
-    hora: '10:30',
-    tipo: 'entrada',
-    categoria: 'Medicamentos',
-    recurso: 'Antiinflamatório',
-    quantidade: 150,
-    unidade: 'unidades',
-    responsavel: 'Carlos Ferreira',
-  },
-  {
-    id: '7',
-    data: '31/05/2026',
-    hora: '14:00',
-    tipo: 'saida',
-    categoria: 'Higiene',
-    recurso: 'Papel Higiênico',
-    quantidade: 80,
-    unidade: 'rolos',
-    responsavel: 'Ana Costa',
-    abrigoDestino: 'Comunidade Benedito Bentes',
-  },
-  {
-    id: '8',
-    data: '31/05/2026',
-    hora: '09:15',
-    tipo: 'entrada',
-    categoria: 'Alimentos',
-    recurso: 'Feijão',
-    quantidade: 40,
-    unidade: 'kg',
-    responsavel: 'João Santos',
-  },
-];
-
-const CATEGORIAS = [...new Set(MOCK_MOVIMENTACOES.map((m) => m.categoria))];
+function toMovimentacao(r: ApiResource, index: number): Movimentacao {
+  const date = new Date(r.created_at);
+  const data = date.toLocaleDateString('pt-BR');
+  const hora = date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  return {
+    id: String(index),
+    data,
+    hora,
+    tipo: r.type === 'in' ? 'entrada' : 'saida',
+    categoria: r.category.charAt(0).toUpperCase() + r.category.slice(1),
+    recurso: r.name,
+    quantidade: r.quantity,
+    unidade: r.unit,
+    responsavel: r.destined_to || '—',
+    abrigoDestino: r.type === 'out' ? r.destined_to : undefined,
+  };
+}
 
 function parseDatetime(data: string, hora: string): number {
   const [day, month, year] = data.split('/');
@@ -116,9 +40,15 @@ function parseDatetime(data: string, hora: string): number {
 
 interface RecursosProps {
   shelterName?: string;
+  shelterId?: string;
+  resources?: ApiResource[];
 }
 
-export const Recursos = ({ shelterName = 'Abrigo' }: RecursosProps) => {
+const ALLOWED_ROLES = ['shelter_manager', 'crisis_manager', 'dev']
+
+export const Recursos = ({ shelterName = 'Abrigo', shelterId = '', resources = [] }: RecursosProps) => {
+  const { user } = useAuth()
+  const canManage = user.value?.role?.some((r) => ALLOWED_ROLES.includes(r)) ?? false
   const [sortConfig, setSortConfig] = useState<SortConfig>({
     field: 'data',
     direction: 'desc',
@@ -133,10 +63,13 @@ export const Recursos = ({ shelterName = 'Abrigo' }: RecursosProps) => {
   const [isEntryOpen, setIsEntryOpen] = useState(false);
   const [isExitOpen, setIsExitOpen] = useState(false);
 
+  const movimentacoes = useMemo(() => resources.map(toMovimentacao), [resources]);
+  const CATEGORIAS = useMemo(() => [...new Set(movimentacoes.map((m) => m.categoria))], [movimentacoes]);
+
   const sortLabel = sortConfig.field === 'data' ? 'Data' : 'Quantidade';
 
   const processedRows = useMemo(() => {
-    const filtered = MOCK_MOVIMENTACOES.filter((m) => {
+    const filtered = movimentacoes.filter((m) => {
       const matchesTipo =
         filterConfig.tipo === 'todos' || m.tipo === filterConfig.tipo;
       const matchesCategoria =
@@ -187,9 +120,13 @@ export const Recursos = ({ shelterName = 'Abrigo' }: RecursosProps) => {
               )}
             </button>
 
-            <RegisterResourceButton onClick={() => setIsRegisterOpen(true)} />
-            <EntryResourceButton onClick={() => setIsEntryOpen(true)} />
-            <ExitResourceButton onClick={() => setIsExitOpen(true)} />
+            {canManage && (
+              <>
+                <RegisterResourceButton onClick={() => setIsRegisterOpen(true)} />
+                <EntryResourceButton onClick={() => setIsEntryOpen(true)} />
+                <ExitResourceButton onClick={() => setIsExitOpen(true)} />
+              </>
+            )}
           </div>
         </div>
 
@@ -269,29 +206,20 @@ export const Recursos = ({ shelterName = 'Abrigo' }: RecursosProps) => {
 
       <RegisterResourceModal
         open={isRegisterOpen}
+        shelterId={shelterId}
         onClose={() => setIsRegisterOpen(false)}
-        onSubmit={(data) => {
-          console.log('Cadastrar recurso:', data);
-          setIsRegisterOpen(false);
-        }}
       />
 
       <EntryResourceModal
         open={isEntryOpen}
+        shelterId={shelterId}
         onClose={() => setIsEntryOpen(false)}
-        onSubmit={(data) => {
-          console.log('Entrada de recurso:', data);
-          setIsEntryOpen(false);
-        }}
       />
 
       <ExitResourceModal
         open={isExitOpen}
+        shelterId={shelterId}
         onClose={() => setIsExitOpen(false)}
-        onSubmit={(data) => {
-          console.log('Saída de recurso:', data);
-          setIsExitOpen(false);
-        }}
       />
     </div>
   );

@@ -1,12 +1,28 @@
+import { useCheckOut } from '@/features/shelters/hooks'
+import { showToast } from '@/shared/services/toast'
+
 interface ConfirmPersonExitModalProps {
   open: boolean
+  shelterId: string
   personName: string
+  personCpf: string
   onClose: () => void
-  onConfirm: () => void
 }
 
-export default function ConfirmPersonExitModal({ open, personName, onClose, onConfirm }: ConfirmPersonExitModalProps) {
+export default function ConfirmPersonExitModal({ open, shelterId, personName, personCpf, onClose }: ConfirmPersonExitModalProps) {
+  const { mutate: doCheckOut, isPending } = useCheckOut(shelterId)
+
   if (!open) return null
+
+  function handleConfirm() {
+    doCheckOut(personCpf, {
+      onSuccess: () => {
+        showToast('Saída registrada com sucesso!', 'success')
+        onClose()
+      },
+      onError: () => showToast('Erro ao registrar saída.', 'error'),
+    })
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
@@ -27,11 +43,11 @@ export default function ConfirmPersonExitModal({ open, personName, onClose, onCo
         </div>
 
         <div className="mt-6 flex justify-center gap-3">
-          <button type="button" onClick={onClose} className="btn btn-outline border-[#0A0A0A80] text-[#0A0A0A80] hover:bg-[#0A0A0A0D]">
+          <button type="button" onClick={onClose} disabled={isPending} className="btn btn-outline border-[#0A0A0A80] text-[#0A0A0A80] hover:bg-[#0A0A0A0D]">
             Cancelar
           </button>
-          <button type="button" onClick={onConfirm} className="btn rounded-[10px] border-none bg-[#E5484D] text-white hover:bg-[#E5484D]/90">
-            Excluir
+          <button type="button" onClick={handleConfirm} disabled={isPending} className="btn rounded-[10px] border-none bg-[#E5484D] text-white hover:bg-[#E5484D]/90 disabled:opacity-60">
+            {isPending ? 'Registrando...' : 'Confirmar Saída'}
           </button>
         </div>
       </div>
@@ -42,9 +58,9 @@ export default function ConfirmPersonExitModal({ open, personName, onClose, onCo
 function WarningIcon() {
   return (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="m21.73 18-8-14a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
-      <path d="M12 9v4" />
-      <path d="M12 17h.01" />
+      <path d="m21.73 18-8-14a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+      <path d="M12 9v4"/>
+      <path d="M12 17h.01"/>
     </svg>
   )
 }
@@ -52,8 +68,8 @@ function WarningIcon() {
 function CloseIcon() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M18 6 6 18" />
-      <path d="m6 6 12 12" />
+      <path d="M18 6 6 18"/>
+      <path d="m6 6 12 12"/>
     </svg>
   )
 }
