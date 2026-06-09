@@ -78,7 +78,7 @@ export default function Solicitacoes() {
                   <p className="text-sm font-medium text-[#0a0a0a]">{s.name}</p>
                   <p className="text-sm text-[#717182] truncate">{s.email}</p>
                   <p className="text-sm text-[#717182]">{s.phone ?? '—'}</p>
-                  <p className="text-sm text-[#717182] truncate">{s.organization_id ?? '—'}</p>
+                  <p className="text-sm text-[#717182] truncate">{s.organization_name ?? s.organization_id ?? '—'}</p>
                   <p className="text-sm text-[#717182]">
                     {new Date(s.created_at).toLocaleDateString('pt-BR')}
                   </p>

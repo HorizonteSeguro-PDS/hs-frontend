@@ -5,10 +5,13 @@ export interface Solicitacao {
   name: string
   email: string
   phone: string
-  organization_id: string
   roles: string[]
-  verified: boolean
+  status: 'pending' | 'approved' | 'rejected'
+  type: 'existing_organization' | 'new_organization'
+  organization_id?: string
+  organization_name?: string
   created_at: string
+  reviewed_at?: string
 }
 
 const authHeaders = (token: string) => ({
@@ -17,7 +20,7 @@ const authHeaders = (token: string) => ({
 })
 
 export const fetchSolicitacoes = async (token: string): Promise<Solicitacao[]> => {
-  const response = await fetch(`${apiUrl}/users?role=shelter_manager&verified=false`, {
+  const response = await fetch(`${apiUrl}/registration-requests`, {
     headers: authHeaders(token),
   });
   if (!response.ok) throw new Error('Erro ao buscar solicitações');
@@ -25,17 +28,16 @@ export const fetchSolicitacoes = async (token: string): Promise<Solicitacao[]> =
 };
 
 export const aprovarSolicitacao = async (id: string, token: string): Promise<void> => {
-  const response = await fetch(`${apiUrl}/users/${id}/verify`, {
-    method: 'PATCH',
+  const response = await fetch(`${apiUrl}/registration-requests/${id}/approve`, {
+    method: 'POST',
     headers: authHeaders(token),
-    body: JSON.stringify({ verified: true }),
   });
   if (!response.ok) throw new Error('Erro ao aprovar solicitação');
 };
 
 export const rejeitarSolicitacao = async (id: string, token: string): Promise<void> => {
-  const response = await fetch(`${apiUrl}/users/${id}`, {
-    method: 'DELETE',
+  const response = await fetch(`${apiUrl}/registration-requests/${id}/reject`, {
+    method: 'POST',
     headers: authHeaders(token),
   });
   if (!response.ok) throw new Error('Erro ao rejeitar solicitação');
