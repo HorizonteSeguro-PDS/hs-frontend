@@ -2,11 +2,12 @@ import { useEffect, useMemo, useState } from 'preact/hooks'
 import { useAddressSearch, useCepLookup } from '../../shelters/hooks'
 import { reverseGeocode, type AddressResult } from '../../shelters/api'
 import AddressMapPicker from '../../shelters/components/AddressMapPicker'
+import { useCreateShelter } from '../hooks'
 
 interface RegisterShelterModalProps {
   open: boolean
   onClose: () => void
-  onSubmit: (data: ShelterRegistrationFormData) => void
+  crisisId: string
 }
 
 interface ShelterRegistrationFormData {
@@ -60,9 +61,10 @@ const addressFieldRows: { field: keyof ShelterRegistrationFormData; placeholder:
 const gradientBackground = 'bg-[linear-gradient(16deg,#1FA6A0_0.1%,#2F7DBB_57.69%,#3555A3_99.4%)]'
 const buttonGradient = `rounded-[10px] ${gradientBackground} shadow-[0_10px_15px_-3px_rgba(31,166,160,0.30),0_4px_6px_-4px_rgba(31,166,160,0.30)]`
 
-export default function RegisterShelterModal({ open, onClose, onSubmit }: RegisterShelterModalProps) {
+export default function RegisterShelterModal({ open, onClose, crisisId }: RegisterShelterModalProps) {
   const [step, setStep] = useState<1 | 2>(1)
   const [formData, setFormData] = useState<ShelterRegistrationFormData>(initialFormData)
+  const { mutate: createShelter, isPending } = useCreateShelter(crisisId)
 
   const addressQuery = useMemo(() => {
     const parts = [formData.endereco, formData.bairro, formData.cidade, formData.estado, formData.cep]
@@ -124,8 +126,28 @@ export default function RegisterShelterModal({ open, onClose, onSubmit }: Regist
   }
 
   function handleSubmit() {
-    onSubmit(formData)
-    handleClose()
+    createShelter(
+      {
+        crisis_id: crisisId,
+        name: formData.nome,
+        phone: formData.telefone,
+        email: formData.email,
+        description: formData.bio,
+        zip_code: formData.cep,
+        address: formData.endereco,
+        neighborhood: formData.bairro,
+        city: formData.cidade,
+        state: formData.estado,
+        latitude: formData.latitude ? Number(formData.latitude) : null,
+        longitude: formData.longitude ? Number(formData.longitude) : null,
+        capacity: Number(formData.capacidadeTotal) || 0,
+        current_occupancy: Number(formData.pessoasAtuais) || 0,
+        available_spots: Number(formData.vagasDisponiveis) || 0,
+        access_conditions: formData.condicoesAcesso,
+        special_needs: formData.necessidadesEspeciais,
+      },
+      { onSuccess: handleClose },
+    )
   }
 
   return (
@@ -321,8 +343,8 @@ export default function RegisterShelterModal({ open, onClose, onSubmit }: Regist
               <button type="button" onClick={() => setStep(1)} className="btn btn-outline border-[#0A0A0A80] text-[#0A0A0A80] hover:bg-[#0A0A0A0D]">
                 Voltar
               </button>
-              <button type="button" onClick={handleSubmit} className={`btn border-none text-white ${buttonGradient}`}>
-                Cadastrar
+              <button type="button" onClick={handleSubmit} disabled={isPending} className={`btn border-none text-white disabled:opacity-70 ${buttonGradient}`}>
+                {isPending ? 'Cadastrando...' : 'Cadastrar'}
               </button>
             </>
           )}

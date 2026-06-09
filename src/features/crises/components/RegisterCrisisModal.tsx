@@ -1,9 +1,9 @@
 import { useState } from 'preact/hooks'
+import { useCreateCrisis } from '../hooks'
 
 interface RegisterCrisisModalProps {
   open: boolean
   onClose: () => void
-  onSubmit: (data: CrisisRegistrationFormData) => void
 }
 
 interface CrisisRegistrationFormData {
@@ -25,13 +25,16 @@ const initialFormData: CrisisRegistrationFormData = {
 }
 
 const severityOptions = [
-  { value: '1', label: 'Baixa' },
-  { value: '2', label: 'Média' },
-  { value: '3', label: 'Alta' },
+  { value: 'MUITO BAIXA', label: 'Muito Baixa' },
+  { value: 'BAIXA', label: 'Baixa' },
+  { value: 'MÉDIA', label: 'Média' },
+  { value: 'ALTA', label: 'Alta' },
+  { value: 'CRÍTICA', label: 'Crítica' },
 ]
 
-export default function RegisterCrisisModal({ open, onClose, onSubmit }: RegisterCrisisModalProps) {
+export default function RegisterCrisisModal({ open, onClose }: RegisterCrisisModalProps) {
   const [formData, setFormData] = useState<CrisisRegistrationFormData>(initialFormData)
+  const { mutate: createCrisis, isPending } = useCreateCrisis()
 
   if (!open) return null
 
@@ -45,8 +48,17 @@ export default function RegisterCrisisModal({ open, onClose, onSubmit }: Registe
   }
 
   function handleSubmit() {
-    onSubmit(formData)
-    handleClose()
+    createCrisis(
+      {
+        name: formData.crisisName,
+        severity: formData.severity,
+        state: formData.state,
+        city: formData.city,
+        start_date: formData.startDate,
+        active: formData.active,
+      },
+      { onSuccess: handleClose },
+    )
   }
 
   return (
@@ -138,9 +150,10 @@ export default function RegisterCrisisModal({ open, onClose, onSubmit }: Registe
           <button
             type="button"
             onClick={handleSubmit}
-            className="btn rounded-[10px] border-none bg-[linear-gradient(16deg,#1FA6A0_0.1%,#2F7DBB_57.69%,#3555A3_99.4%)] text-white shadow-[0_10px_15px_-3px_rgba(31,166,160,0.30),0_4px_6px_-4px_rgba(31,166,160,0.30)]"
+            disabled={isPending}
+            className="btn rounded-[10px] border-none bg-[linear-gradient(16deg,#1FA6A0_0.1%,#2F7DBB_57.69%,#3555A3_99.4%)] text-white shadow-[0_10px_15px_-3px_rgba(31,166,160,0.30),0_4px_6px_-4px_rgba(31,166,160,0.30)] disabled:opacity-70"
           >
-            Cadastrar
+            {isPending ? 'Cadastrando...' : 'Cadastrar'}
           </button>
         </div>
       </div>

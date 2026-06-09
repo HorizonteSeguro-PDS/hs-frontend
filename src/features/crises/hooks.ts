@@ -1,6 +1,6 @@
-import { getCrises } from './api';
+import { getCrises, createCrisis } from './api';
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 export const useCrises = () => {
     return useQuery({
@@ -11,5 +11,15 @@ export const useCrises = () => {
         retryDelay: () => {
             return 1000 * 15;
         }
+    });
+};
+
+export const useCreateCrisis = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: createCrisis,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['crises'] });
+        },
     });
 };

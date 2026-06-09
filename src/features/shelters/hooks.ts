@@ -41,7 +41,7 @@ export function useInitialStock(shelter_id: string) {
   return useMutation({
     mutationFn: (payload: InitialStockPayload) =>
       createInitialStock(shelter_id, payload, user.value?.token ?? ''),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['crisis-operations'] }),
+    onSuccess: () => queryClient.refetchQueries({ queryKey: ['crisis-operations'] }),
   })
 }
 
@@ -51,7 +51,7 @@ export function useCreateMovement(shelter_id: string) {
   return useMutation({
     mutationFn: (payload: MovementPayload) =>
       createMovement(shelter_id, payload, user.value?.token ?? ''),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['crisis-operations'] }),
+    onSuccess: () => queryClient.refetchQueries({ queryKey: ['crisis-operations'] }),
   })
 }
 

@@ -32,13 +32,15 @@ function toShelterItem(s: ApiShelter): ShelterItem {
 
 export function ShelterPage() {
   const search = useSearch();
-  const crisis_id = new URLSearchParams(search).get('crisis_id');
+  const params = new URLSearchParams(search);
+  const crisis_id = params.get('crisis_id');
+  const shelter_id = params.get('shelter_id');
 
   const { data: crisis, isLoading } = useCrisisOperations(crisis_id);
 
   const shelters: ShelterItem[] = crisis?.shelters.map(toShelterItem) ?? [];
 
-  const [selectedShelterId, setSelectedShelterId] = useState<string | null>(null);
+  const [selectedShelterId, setSelectedShelterId] = useState<string | null>(shelter_id);
   const [activeTab, setActiveTab] = useState(TABS[0].id);
 
   const effectiveId = selectedShelterId ?? shelters[0]?.id ?? null;
@@ -59,6 +61,7 @@ export function ShelterPage() {
         ) : (
           <div className="flex flex-col lg:flex-row gap-4 flex-1">
             <ShelterSidebar
+              crisisId={crisis_id}
               crisisName={crisis?.name ?? ''}
               shelters={shelters}
               selectedShelterId={effectiveId ?? undefined}

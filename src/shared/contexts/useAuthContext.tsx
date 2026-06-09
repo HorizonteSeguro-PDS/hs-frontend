@@ -16,6 +16,8 @@ interface AuthContextType {
     loading: Signal<boolean>;
     isAuthenticated: Signal<boolean> | boolean;
     hasRole: (role: string) => boolean;
+    isCrisisManager: () => boolean;
+    canManageShelter: (shelterId: string) => boolean;
     login: (currentUser: User) => void;
     logout: () => void;
 }
@@ -40,8 +42,14 @@ export const AuthProvider = ({ children }: { children: ComponentChildren }) => {
     const isAuthenticated = signal(stored !== null);
 
     const hasRole = (role: string) => {
-        return user.value?.role.includes(role) || false;
+        return user.value?.role?.includes(role) || false;
     };
+
+    const isCrisisManager = () => hasRole('crisis_manager');
+
+    const canManageShelter = (shelterId: string) =>
+        hasRole('crisis_manager') ||
+        (hasRole('shelter_manager') && user.value?.id === shelterId);
 
     const login = (currentUser: User) => {
         user.value = currentUser;
@@ -56,7 +64,7 @@ export const AuthProvider = ({ children }: { children: ComponentChildren }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, loading, isAuthenticated, hasRole, login, logout }}>
+        <AuthContext.Provider value={{ user, loading, isAuthenticated, hasRole, isCrisisManager, canManageShelter, login, logout }}>
             {children}
         </AuthContext.Provider>
     );
