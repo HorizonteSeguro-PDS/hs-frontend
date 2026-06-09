@@ -1,6 +1,6 @@
 import { getCrises } from './api';
 
-import {useQuery} from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 
 export const useCrises = () => {
     return useQuery({
