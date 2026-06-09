@@ -1,6 +1,6 @@
 import './app.css'
 import Crises from '../features/crises/crises.tsx'
-import { Route, Switch, Redirect } from 'wouter-preact'
+import { Route, Switch } from 'wouter-preact'
 import { CrisisOverview } from '../features/crises_overview/crisis_overview.tsx'
 import Home from '../features/shelters/home.tsx'
 import { ShelterPage } from '@/features/shelters/shelter.tsx'

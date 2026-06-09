@@ -17,7 +17,7 @@ function getInitials(name: string): string {
 
 interface PersonCardProps {
   person: Person;
-  onRegisterExit: (id: string) => void;
+  onRegisterExit?: (id: string) => void;
 }
 
 export const PersonCard = ({ person, onRegisterExit }: PersonCardProps) => {
@@ -38,16 +38,18 @@ export const PersonCard = ({ person, onRegisterExit }: PersonCardProps) => {
           </p>
         </div>
       </div>
-      <div className="flex items-center px-4 pb-4 mt-3">
-        <button
-          onClick={() => onRegisterExit(person.id)}
-          className="w-full flex items-center justify-center gap-1.5 border border-black/10 rounded-lg h-8 text-xs font-medium text-[#0a0a0a] hover:bg-gray-50 transition-colors cursor-pointer"
-          style={{ color: '#A60000' }}
-        >
-          <LogOut size={14} />
-          Registrar Saída
-        </button>
-      </div>
+      {onRegisterExit && (
+        <div className="flex items-center px-4 pb-4 mt-3">
+          <button
+            onClick={() => onRegisterExit(person.id)}
+            className="w-full flex items-center justify-center gap-1.5 border border-black/10 rounded-lg h-8 text-xs font-medium hover:bg-gray-50 transition-colors cursor-pointer"
+            style={{ color: '#A60000' }}
+          >
+            <LogOut size={14} />
+            Registrar Saída
+          </button>
+        </div>
+      )}
     </div>
   );
 };
