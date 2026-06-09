@@ -1,5 +1,5 @@
 import { useState } from 'preact/hooks'
-import RegisterShelterModal from './components/RegisterShelterModal'
+import RegisterShelterModal from '../crises_overview/components/RegisterShelterModal'
 import RegisterShelterButton from './components/RegisterShelterButton'
 import ShelterFilterButton from './components/ShelterFilterButton'
 import ShelterFilterSortModal from './components/ShelterFilterSortModal'

@@ -8,17 +8,16 @@ const buttonGradient =
 export default function ExitResourceButton({ onClick }: ExitResourceButtonProps) {
   return (
     <button type="button" onClick={onClick} className={`btn btn-sm h-9 min-h-9 flex items-center gap-1.5 border-none px-3.5 text-white ${buttonGradient}`}>
-      <PlusIcon />
+      <MinusIcon />
       <span className="text-sm font-medium leading-5">Saída de Recurso</span>
     </button>
   )
 }
 
-function PlusIcon() {
+function MinusIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
       <path d="M4.16602 10H15.8327" stroke="white" strokeWidth="1.66667" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M10 4.1665V15.8332" stroke="white" strokeWidth="1.66667" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   )
 }

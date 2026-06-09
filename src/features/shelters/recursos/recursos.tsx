@@ -6,8 +6,6 @@ import {
 } from './shared/components/resources-table-row';
 import { SortModal, type SortConfig } from './shared/components/sort-modal';
 import { FilterModal, type FilterConfig } from './shared/components/filter-modal';
-import RegisterResourceButton from '../components/resources/RegisterResourceButton';
-import RegisterResourceModal from '../components/resources/RegisterResourceModal';
 import EntryResourceButton from '../components/resources/EntryResourceButton';
 import EntryResourceModal from '../components/resources/EntryResourceModal';
 import ExitResourceButton from '../components/resources/ExitResourceButton';
@@ -129,7 +127,6 @@ export const Recursos = ({ shelterName = 'Abrigo' }: RecursosProps) => {
   });
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [isEntryOpen, setIsEntryOpen] = useState(false);
   const [isExitOpen, setIsExitOpen] = useState(false);
 
@@ -187,7 +184,6 @@ export const Recursos = ({ shelterName = 'Abrigo' }: RecursosProps) => {
               )}
             </button>
 
-            <RegisterResourceButton onClick={() => setIsRegisterOpen(true)} />
             <EntryResourceButton onClick={() => setIsEntryOpen(true)} />
             <ExitResourceButton onClick={() => setIsExitOpen(true)} />
           </div>
@@ -265,15 +261,6 @@ export const Recursos = ({ shelterName = 'Abrigo' }: RecursosProps) => {
         currentConfig={filterConfig}
         categorias={CATEGORIAS}
         onApply={setFilterConfig}
-      />
-
-      <RegisterResourceModal
-        open={isRegisterOpen}
-        onClose={() => setIsRegisterOpen(false)}
-        onSubmit={(data) => {
-          console.log('Cadastrar recurso:', data);
-          setIsRegisterOpen(false);
-        }}
       />
 
       <EntryResourceModal

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'preact/hooks'
-import { useAddressSearch, useCepLookup } from '../hooks'
-import { reverseGeocode, type AddressResult } from '../api'
-import AddressMapPicker from './AddressMapPicker'
+import { useAddressSearch, useCepLookup } from '../../shelters/hooks'
+import { reverseGeocode, type AddressResult } from '../../shelters/api'
+import AddressMapPicker from '../../shelters/components/AddressMapPicker'
 
 interface RegisterShelterModalProps {
   open: boolean
