@@ -2,7 +2,7 @@ import type { Crisis } from './types'
 
 const apiUrl = import.meta.env.VITE_API_URL
 
-interface ApiCrisis {
+export interface ApiCrisis {
   id: string
   name: string
   severity: string
@@ -13,7 +13,7 @@ interface ApiCrisis {
   active: boolean
 }
 
-const SEVERITY_MAP: Record<string, number> = {
+export const SEVERITY_MAP: Record<string, number> = {
   'MUITO BAIXA': 1,
   'BAIXA': 2,
   'MÉDIA': 3,
@@ -27,7 +27,8 @@ export const getCrises = async (): Promise<Crisis[]> => {
     throw new Error(`Error fetching crises: ${response.statusText}`)
   }
   const items: ApiCrisis[] = await response.json()
-  return items.map((item) => ({
+   return items.map((item) => ({
+    id: item.id,
     crisis_name: item.name,
     severity: SEVERITY_MAP[item.severity] ?? 3,
     state: item.state,
@@ -35,5 +36,5 @@ export const getCrises = async (): Promise<Crisis[]> => {
     start_date: item.start_date ?? '',
     shelters_count: item.shelters_count,
     active: item.active,
-  }))
+   }));
 }

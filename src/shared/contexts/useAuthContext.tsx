@@ -22,8 +22,20 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const getInitialUser = (): User | null => {
+    if (typeof window === 'undefined') return null;
+    try {
+        const savedUser = localStorage.getItem('auth_user');
+        return savedUser ? JSON.parse(savedUser) : null;
+    } catch (error) {
+        console.error("Erro ao ler usuário do localStorage:", error);
+        return null;
+    }
+};
+
 export const AuthProvider = ({ children }: { children: ComponentChildren }) => {
-    const user = signal<User | null>(null);
+    const initialUser = getInitialUser();
+    const user = signal<User | null>(initialUser);
     const loading = signal(false);
     const isAuthenticated = signal(false);
 
@@ -34,11 +46,13 @@ export const AuthProvider = ({ children }: { children: ComponentChildren }) => {
     const login = (currentUser: User) => {
         user.value = currentUser;
         isAuthenticated.value = true;
+        localStorage.setItem('auth_user', JSON.stringify(currentUser));
     };
 
     const logout = () => {
         user.value = null;
         isAuthenticated.value = false;
+        localStorage.removeItem('auth_user');
     };
 
     return (

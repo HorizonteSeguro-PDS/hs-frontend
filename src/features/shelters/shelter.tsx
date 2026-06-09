@@ -5,6 +5,8 @@ import { TabMenu } from './shared/components/tab-menu';
 import { Overview } from './overview/overview';
 import { Recursos } from './recursos/recursos';
 import { Pessoas } from './pessoas/pessoas';
+// import { CrisisMap } from '@/features/shelters/mapas/CrisisMap';
+import CrisisMap from './mapas/CrisisMap';
 
 const MOCK_CRISIS = 'Enchente - Maceió';
 
@@ -49,6 +51,7 @@ export function ShelterPage() {
             </div>
           </div>
         </div>
+        <CrisisMap crisisId="152e9e5c-05ad-479b-aa2d-c6f2c9ab79fe" />
       </main>
     </div>
   );

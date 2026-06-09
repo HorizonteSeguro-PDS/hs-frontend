@@ -19,7 +19,6 @@ export function App() {
             <Switch>
               <Route path="/home" component={Home} />
               <Route path="/crises" component={Crises} />
-              <Route path="/crises/all" component={Crises} />
               <Route path="/crises/:id" component={Crises} />
               <Route path="/crises/:id/abrigos" component={Crises} />
               <Route path="/abrigo" component={ShelterPage} />

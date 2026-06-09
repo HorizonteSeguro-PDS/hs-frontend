@@ -1,4 +1,5 @@
 export interface Crisis {
+  id: string
   crisis_name: string
   severity: number
   state: string
