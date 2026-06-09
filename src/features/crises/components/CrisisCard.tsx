@@ -75,14 +75,14 @@ export default function CrisisCard({ crisis }: CrisisCardProps) {
         </div>
         {inactive ? (
           <Link
-            href="/crise/overview"
+            href={`/crises/${crisis.id}`}
             className="btn btn-sm rounded-xl bg-white border border-[#d1d5db] text-[#9ca3af] font-semibold px-4 text-sm hover:bg-[#f9fafb]"
           >
             Ver detalhes
           </Link>
         ) : (
           <Link
-            href="/crise/overview"
+            href={`/crises/${crisis.id}`}
             className="btn btn-sm rounded-xl border-none text-white font-semibold px-4 text-sm"
             style={{ background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)' }}
           >

@@ -57,9 +57,9 @@ export const Recursos = ({ shelterName = 'Abrigo', shelterId = '', resources = [
     tipo: 'todos',
     categoria: 'todos',
   });
+  const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [isEntryOpen, setIsEntryOpen] = useState(false);
   const [isExitOpen, setIsExitOpen] = useState(false);
 
@@ -210,6 +210,7 @@ export const Recursos = ({ shelterName = 'Abrigo', shelterId = '', resources = [
         onClose={() => setIsRegisterOpen(false)}
       />
 
+>>>>>>> develop
       <EntryResourceModal
         open={isEntryOpen}
         shelterId={shelterId}
