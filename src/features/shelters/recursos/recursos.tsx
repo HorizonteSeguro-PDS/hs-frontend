@@ -28,8 +28,7 @@ function toMovimentacao(r: ApiResource, index: number): Movimentacao {
     recurso: r.name,
     quantidade: r.quantity,
     unidade: r.unit,
-    responsavel: r.destined_to || '—',
-    abrigoDestino: r.type === 'out' ? r.destined_to : undefined,
+    responsavel: r.created_by || '—',
   };
 }
 
@@ -82,7 +81,7 @@ export const Recursos = ({ shelterName = 'Abrigo', shelterId = '', resources = [
       }
       return mult * (a.quantidade - b.quantidade);
     });
-  }, [sortConfig, filterConfig]);
+  }, [movimentacoes, sortConfig, filterConfig]);
 
   const hasActiveFilter =
     filterConfig.tipo !== 'todos' || filterConfig.categoria !== 'todos';
@@ -155,7 +154,6 @@ export const Recursos = ({ shelterName = 'Abrigo', shelterId = '', resources = [
                     'Quantidade',
                     'Unidade',
                     'Responsável',
-                    'Abrigo Destino',
                   ].map((col) => (
                     <th
                       key={col}
@@ -170,7 +168,7 @@ export const Recursos = ({ shelterName = 'Abrigo', shelterId = '', resources = [
                 {processedRows.length === 0 ? (
                   <tr>
                     <td
-                      colSpan={8}
+                      colSpan={7}
                       className="px-6 py-12 text-center text-sm text-[#717182]"
                     >
                       Nenhuma movimentação encontrada.

@@ -61,7 +61,7 @@ export default function Register() {
 
   const { mutate: registerExisting, isPending: isPendingExisting } = useRegisterExistingOrg()
   const { mutate: registerNew, isPending: isPendingNew } = useRegisterNewOrg()
-  const { data: organizations = [], isLoading: isLoadingOrgs } = useOrganizations(!showNewOrg)
+  const { data: organizations = [], isLoading: isLoadingOrgs } = useOrganizations(orgSearch, !showNewOrg)
 
   const isPending = isPendingExisting || isPendingNew
 
@@ -76,7 +76,6 @@ export default function Register() {
   }, [])
 
   const selectedOrgName = organizations.find((o) => o.id === formData.organization_id)?.name ?? ''
-  const filteredOrgs = organizations.filter((o) => o.name.toLowerCase().includes(orgSearch.toLowerCase()))
 
   function updateField(field: keyof FormData, value: string) {
     setFormData((prev) => ({ ...prev, [field]: value }))
@@ -202,10 +201,10 @@ export default function Register() {
                     />
                     {orgDropdownOpen && (
                       <ul className="absolute z-20 mt-1 w-full rounded-xl border border-[#E5E7EB] bg-white shadow-lg max-h-48 overflow-y-auto">
-                        {filteredOrgs.length === 0 ? (
+                        {organizations.length === 0 ? (
                           <li className="px-4 py-2 text-sm text-[#0A0A0A80]">Nenhuma organização encontrada</li>
                         ) : (
-                          filteredOrgs.map((org) => (
+                          organizations.map((org) => (
                             <li key={org.id}
                               onMouseDown={() => { updateField('organization_id', org.id); setOrgSearch(''); setOrgDropdownOpen(false) }}
                               className={`cursor-pointer px-4 py-2 text-sm hover:bg-[#f0f9ff] transition-colors ${formData.organization_id === org.id ? 'font-semibold text-[#1FA6A0]' : 'text-[#0a0a0a]'}`}>

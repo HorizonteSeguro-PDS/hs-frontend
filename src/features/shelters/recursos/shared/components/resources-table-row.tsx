@@ -10,7 +10,6 @@ export interface Movimentacao {
   quantidade: number;
   unidade: string;
   responsavel: string;
-  abrigoDestino?: string;
 }
 
 interface ResourcesTableRowProps {
@@ -52,11 +51,6 @@ export const ResourcesTableRow = ({ movimentacao }: ResourcesTableRowProps) => {
       </td>
       <td className="px-4 sm:px-6 py-3 whitespace-nowrap">
         <span className="text-sm text-[#717182]">{movimentacao.responsavel}</span>
-      </td>
-      <td className="px-4 sm:px-6 py-3">
-        <span className="text-sm text-[#717182]">
-          {movimentacao.abrigoDestino ?? '—'}
-        </span>
       </td>
     </tr>
   );

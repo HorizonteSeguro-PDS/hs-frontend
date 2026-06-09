@@ -2,16 +2,46 @@ import { useEffect, useState } from 'preact/hooks'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   lookupCep, searchAddress, fetchCrisisOperations, fetchShelterDetail,
-  fetchResourceCategories, createInitialStock, createMovement, checkIn, checkOut,
+  fetchResourceCategories,
   type AddressResult, type CepAddress, type InitialStockPayload, type MovementPayload, type CheckInPayload,
 } from './api'
 import { useAuth } from '@/shared/contexts/useAuthContext'
+import { mutateOffline, getCachedResourceCategories } from '@/shared/services/offlineCache'
+import { isOnline } from '@/shared/services/syncQueue'
+import { showToast } from '@/shared/services/toast'
+import { db } from '@/db/database'
+
+const API_URL = import.meta.env.VITE_API_URL as string
 
 export function useCrisisOperations(crisis_id: string | null) {
+  const queryClient = useQueryClient()
+
+  useEffect(() => {
+    const handler = () => queryClient.invalidateQueries({ queryKey: ['crisis-operations', crisis_id] })
+    window.addEventListener('hs:sync-complete', handler)
+    return () => window.removeEventListener('hs:sync-complete', handler)
+  }, [crisis_id])
+
   return useQuery({
     queryKey: ['crisis-operations', crisis_id],
-    queryFn: () => fetchCrisisOperations(crisis_id!),
+    queryFn: async () => {
+      try {
+        const data = await fetchCrisisOperations(crisis_id!)
+        // Cache o payload inteiro — supplies, resources e people incluídos
+        await db.operationsCache.put({
+          crisis_id: crisis_id!,
+          payload: data,
+          cached_at: new Date().toISOString(),
+        })
+        return data
+      } catch {
+        const cached = await db.operationsCache.get(crisis_id!)
+        if (cached) return cached.payload as Awaited<ReturnType<typeof fetchCrisisOperations>>
+        throw new Error('Sem conexão e nenhum dado em cache.')
+      }
+    },
     enabled: !!crisis_id,
+    staleTime: 2 * 60 * 1000,
   })
 }
 
@@ -30,8 +60,15 @@ export function useResourceCategories(lot_category?: string) {
   const token = user.value?.token ?? ''
   return useQuery({
     queryKey: ['resource-categories', lot_category],
-    queryFn: () => fetchResourceCategories(token, lot_category),
+    queryFn: async () => {
+      try {
+        return await fetchResourceCategories(token, lot_category)
+      } catch {
+        return getCachedResourceCategories(lot_category)
+      }
+    },
     enabled: !!lot_category,
+    staleTime: 10 * 60 * 1000,
   })
 }
 
@@ -39,9 +76,18 @@ export function useInitialStock(shelter_id: string) {
   const { user } = useAuth()
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (payload: InitialStockPayload) =>
-      createInitialStock(shelter_id, payload, user.value?.token ?? ''),
-    onSuccess: () => queryClient.refetchQueries({ queryKey: ['crisis-operations'] }),
+    mutationFn: (payload: InitialStockPayload) => {
+      const token = user.value?.token ?? ''
+      return mutateOffline(
+        `${API_URL}/shelters/${shelter_id}/inventory/initial-stock`,
+        'POST', payload,
+        { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      )
+    },
+    onSuccess: (res) => {
+      if (res === null) showToast('Salvo offline. Será enviado quando houver conexão.', 'info')
+      queryClient.refetchQueries({ queryKey: ['crisis-operations'] })
+    },
   })
 }
 
@@ -49,9 +95,18 @@ export function useCreateMovement(shelter_id: string) {
   const { user } = useAuth()
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (payload: MovementPayload) =>
-      createMovement(shelter_id, payload, user.value?.token ?? ''),
-    onSuccess: () => queryClient.refetchQueries({ queryKey: ['crisis-operations'] }),
+    mutationFn: (payload: MovementPayload) => {
+      const token = user.value?.token ?? ''
+      return mutateOffline(
+        `${API_URL}/shelters/${shelter_id}/inventory/movements`,
+        'POST', payload,
+        { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      )
+    },
+    onSuccess: (res) => {
+      if (res === null) showToast('Salvo offline. Será enviado quando houver conexão.', 'info')
+      queryClient.refetchQueries({ queryKey: ['crisis-operations'] })
+    },
   })
 }
 
@@ -59,9 +114,18 @@ export function useCheckIn(shelter_id: string) {
   const { user } = useAuth()
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (payload: CheckInPayload) =>
-      checkIn(shelter_id, payload, user.value?.token ?? ''),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['crisis-operations'] }),
+    mutationFn: (payload: CheckInPayload) => {
+      const token = user.value?.token ?? ''
+      return mutateOffline(
+        `${API_URL}/shelters/${shelter_id}/check-ins`,
+        'POST', payload,
+        { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      )
+    },
+    onSuccess: (res) => {
+      if (res === null) showToast('Check-in salvo offline. Será sincronizado em breve.', 'info')
+      queryClient.invalidateQueries({ queryKey: ['crisis-operations'] })
+    },
   })
 }
 
@@ -69,10 +133,22 @@ export function useCheckOut(shelter_id: string) {
   const { user } = useAuth()
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (cpf: string) => checkOut(shelter_id, cpf, user.value?.token ?? ''),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['crisis-operations'] }),
+    mutationFn: (cpf: string) => {
+      const token = user.value?.token ?? ''
+      return mutateOffline(
+        `${API_URL}/shelters/${shelter_id}/check-outs`,
+        'POST', { cpf },
+        { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      )
+    },
+    onSuccess: (res) => {
+      if (res === null) showToast('Check-out salvo offline. Será sincronizado em breve.', 'info')
+      queryClient.invalidateQueries({ queryKey: ['crisis-operations'] })
+    },
   })
 }
+
+export { isOnline }
 
 export function useAddressSearch(query: string) {
   const [results, setResults] = useState<AddressResult[]>([])

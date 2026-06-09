@@ -12,6 +12,7 @@ interface FormData {
   lot_category: string
   name: string
   unit: string
+  description: string
   quantity: string
   source: string
   notes: string
@@ -21,6 +22,7 @@ const initialFormData: FormData = {
   lot_category: '',
   name: '',
   unit: '',
+  description: '',
   quantity: '',
   source: '',
   notes: '',
@@ -29,7 +31,7 @@ const initialFormData: FormData = {
 const lotCategoryOptions = [
   { value: 'essenciais', label: 'Essenciais' },
   { value: 'saude', label: 'Saúde' },
-  { value: 'infantil-idosos', label: 'Infantil e Idosos' },
+  { value: 'infantil_e_idosos', label: 'Infantil e Idosos' },
   { value: 'animais', label: 'Animais' },
   { value: 'infraestrutura', label: 'Infraestrutura' },
   { value: 'operacao', label: 'Operação' },
@@ -38,9 +40,10 @@ const lotCategoryOptions = [
 const unitOptions = [
   { value: 'kg', label: 'kg' },
   { value: 'g', label: 'g' },
-  { value: 'ml', label: 'ml' },
-  { value: 'l', label: 'L' },
-  { value: 'un', label: 'Un' },
+  { value: 'L', label: 'L' },
+  { value: 'mL', label: 'mL' },
+  { value: 'unidade', label: 'Unidade' },
+  { value: 'real', label: 'R$' },
 ]
 
 const headerGradient =
@@ -68,7 +71,7 @@ export default function RegisterResourceModal({ open, shelterId, onClose }: Regi
     if (!formData.lot_category || !formData.name || !formData.unit || !formData.quantity) return
     createInitialStock(
       {
-        category: { name: formData.name, unit: formData.unit, lot_category: formData.lot_category },
+        category: { name: formData.name, unit: formData.unit, lot_category: formData.lot_category, description: formData.description || undefined },
         quantity: Number(formData.quantity),
         source: formData.source || undefined,
         notes: formData.notes || undefined,
@@ -116,6 +119,14 @@ export default function RegisterResourceModal({ open, shelterId, onClose }: Regi
               placeholder="Ex: Água mineral, Cobertor..."
               value={formData.name}
               onInput={(v) => update('name', v)}
+            />
+          </Field>
+
+          <Field label="Descrição (opcional)">
+            <Input
+              placeholder="Ex: Garrafas de 500ml, sem açúcar..."
+              value={formData.description}
+              onInput={(v) => update('description', v)}
             />
           </Field>
 

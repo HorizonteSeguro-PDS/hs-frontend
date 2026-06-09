@@ -24,9 +24,9 @@ interface ShelterRegistrationFormData {
   longitude: string
   capacidadeTotal: string
   pessoasAtuais: string
-  vagasDisponiveis: string
   condicoesAcesso: string
   necessidadesEspeciais: string
+  shelterType: 'institutional' | 'community_home' | 'improvised_public'
 }
 
 const initialFormData: ShelterRegistrationFormData = {
@@ -43,10 +43,16 @@ const initialFormData: ShelterRegistrationFormData = {
   longitude: '',
   capacidadeTotal: '',
   pessoasAtuais: '',
-  vagasDisponiveis: '',
   condicoesAcesso: '',
   necessidadesEspeciais: '',
+  shelterType: 'institutional',
 }
+
+const shelterTypeOptions = [
+  { value: 'institutional', label: 'Institucional' },
+  { value: 'community_home', label: 'Casa comunitária' },
+  { value: 'improvised_public', label: 'Público improvisado' },
+]
 
 const addressFieldRows: { field: keyof ShelterRegistrationFormData; placeholder: string; className: string }[][] = [
   [{ field: 'cep', placeholder: 'CEP', className: 'w-full' }],
@@ -57,6 +63,23 @@ const addressFieldRows: { field: keyof ShelterRegistrationFormData; placeholder:
   ],
   [{ field: 'endereco', placeholder: 'Ex: Rua das Flores, 123, Apto 4', className: 'w-full' }],
 ]
+
+const STATE_NAME_TO_UF: Record<string, string> = {
+  'Acre': 'AC', 'Alagoas': 'AL', 'Amapá': 'AP', 'Amazonas': 'AM',
+  'Bahia': 'BA', 'Ceará': 'CE', 'Distrito Federal': 'DF', 'Espírito Santo': 'ES',
+  'Goiás': 'GO', 'Maranhão': 'MA', 'Mato Grosso': 'MT', 'Mato Grosso do Sul': 'MS',
+  'Minas Gerais': 'MG', 'Pará': 'PA', 'Paraíba': 'PB', 'Paraná': 'PR',
+  'Pernambuco': 'PE', 'Piauí': 'PI', 'Rio de Janeiro': 'RJ', 'Rio Grande do Norte': 'RN',
+  'Rio Grande do Sul': 'RS', 'Rondônia': 'RO', 'Roraima': 'RR', 'Santa Catarina': 'SC',
+  'São Paulo': 'SP', 'Sergipe': 'SE', 'Tocantins': 'TO',
+}
+
+function toStateUF(value: string): string {
+  if (!value) return ''
+  // Already a 2-letter UF
+  if (value.length === 2) return value.toUpperCase()
+  return STATE_NAME_TO_UF[value] ?? value
+}
 
 const gradientBackground = 'bg-[linear-gradient(16deg,#1FA6A0_0.1%,#2F7DBB_57.69%,#3555A3_99.4%)]'
 const buttonGradient = `rounded-[10px] ${gradientBackground} shadow-[0_10px_15px_-3px_rgba(31,166,160,0.30),0_4px_6px_-4px_rgba(31,166,160,0.30)]`
@@ -88,7 +111,7 @@ export default function RegisterShelterModal({ open, onClose, crisisId }: Regist
       endereco: prev.endereco || cepAddress.rua,
       bairro: cepAddress.bairro || prev.bairro,
       cidade: cepAddress.cidade || prev.cidade,
-      estado: cepAddress.estado || prev.estado,
+      estado: toStateUF(cepAddress.estado) || prev.estado,
     }))
   }, [cepAddress])
 
@@ -113,7 +136,7 @@ export default function RegisterShelterModal({ open, onClose, crisisId }: Regist
         endereco: result.endereco || prev.endereco,
         bairro: result.bairro || prev.bairro,
         cidade: result.cidade || prev.cidade,
-        estado: result.estado || prev.estado,
+        estado: toStateUF(result.estado) || prev.estado,
         cep: result.cep || prev.cep,
       }))
     })
@@ -132,8 +155,8 @@ export default function RegisterShelterModal({ open, onClose, crisisId }: Regist
         name: formData.nome,
         phone: formData.telefone,
         email: formData.email,
-        description: formData.bio,
-        zip_code: formData.cep,
+        bio: formData.bio,
+        cep: formData.cep,
         address: formData.endereco,
         neighborhood: formData.bairro,
         city: formData.cidade,
@@ -141,10 +164,10 @@ export default function RegisterShelterModal({ open, onClose, crisisId }: Regist
         latitude: formData.latitude ? Number(formData.latitude) : null,
         longitude: formData.longitude ? Number(formData.longitude) : null,
         capacity: Number(formData.capacidadeTotal) || 0,
-        current_occupancy: Number(formData.pessoasAtuais) || 0,
-        available_spots: Number(formData.vagasDisponiveis) || 0,
-        access_conditions: formData.condicoesAcesso,
-        special_needs: formData.necessidadesEspeciais,
+        occupation: Number(formData.pessoasAtuais) || 0,
+        entry_requirements: formData.condicoesAcesso,
+        attended_special_needs: formData.necessidadesEspeciais,
+        shelter_type: formData.shelterType,
       },
       { onSuccess: handleClose },
     )
@@ -285,7 +308,16 @@ export default function RegisterShelterModal({ open, onClose, crisisId }: Regist
             </div>
           ) : (
             <div className="flex flex-col gap-5">
-              <Question number={1} label="Qual é a capacidade total do abrigo?">
+              <Question number={1} label="Qual o tipo do abrigo?">
+                <Select
+                  placeholder="Selecione o tipo..."
+                  value={formData.shelterType}
+                  options={shelterTypeOptions}
+                  onChange={(value) => updateField('shelterType', value as ShelterRegistrationFormData['shelterType'])}
+                />
+              </Question>
+
+              <Question number={2} label="Qual é a capacidade total do abrigo?">
                 <Input
                   placeholder="Digite a capacidade total do abrigo."
                   value={formData.capacidadeTotal}
@@ -293,19 +325,11 @@ export default function RegisterShelterModal({ open, onClose, crisisId }: Regist
                 />
               </Question>
 
-              <Question number={2} label="Quantas pessoas estão atualmente no abrigo?">
+              <Question number={3} label="Quantas pessoas estão atualmente no abrigo?">
                 <Input
                   placeholder="Digite a quantidade..."
                   value={formData.pessoasAtuais}
                   onInput={(value) => updateField('pessoasAtuais', value)}
-                />
-              </Question>
-
-              <Question number={3} label="Quantas vagas ainda estão disponíveis?">
-                <Input
-                  placeholder="Digite a quantidade..."
-                  value={formData.vagasDisponiveis}
-                  onInput={(value) => updateField('vagasDisponiveis', value)}
                 />
               </Question>
 
@@ -436,6 +460,29 @@ function TextArea({
       className="textarea textarea-bordered w-full rounded-xl bg-white border-[#0A0A0A80] text-[#0A0A0A80] focus:border-[#1FA6A0] focus:outline-none"
       rows={3}
     />
+  )
+}
+
+function Select({
+  placeholder,
+  value,
+  options,
+  onChange,
+}: {
+  placeholder: string
+  value: string
+  options: { value: string; label: string }[]
+  onChange: (value: string) => void
+}) {
+  return (
+    <select
+      value={value}
+      onChange={(e) => onChange((e.target as HTMLSelectElement).value)}
+      className="select select-bordered w-full rounded-xl bg-white border-[#0A0A0A80] text-[#0A0A0A80] focus:border-[#1FA6A0] focus:outline-none"
+    >
+      <option value="" disabled>{placeholder}</option>
+      {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+    </select>
   )
 }
 

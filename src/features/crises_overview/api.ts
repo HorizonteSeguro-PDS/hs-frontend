@@ -46,8 +46,8 @@ export interface CreateShelterPayload {
   name: string
   phone: string
   email: string
-  description: string
-  zip_code: string
+  bio: string
+  cep: string
   address: string
   neighborhood: string
   city: string
@@ -55,21 +55,18 @@ export interface CreateShelterPayload {
   latitude: number | null
   longitude: number | null
   capacity: number
-  current_occupancy: number
-  available_spots: number
-  access_conditions: string
-  special_needs: string
+  occupation: number
+  entry_requirements: string
+  attended_special_needs: string
+  shelter_type: 'institutional' | 'community_home' | 'improvised_public'
 }
 
-export const createShelter = async (payload: CreateShelterPayload): Promise<void> => {
-  const userRaw = localStorage.getItem('auth_user')
-  const user = userRaw ? JSON.parse(userRaw) : null
-
+export const createShelter = async (payload: CreateShelterPayload, token?: string): Promise<void> => {
   const response = await fetch(`${apiUrl}/shelters`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      ...(user?.token ? { Authorization: `Bearer ${user.token}` } : {}),
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
     body: JSON.stringify(payload),
   })

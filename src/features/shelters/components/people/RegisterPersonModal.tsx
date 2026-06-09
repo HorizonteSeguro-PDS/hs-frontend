@@ -1,6 +1,7 @@
 import { useState } from 'preact/hooks'
 import { useCheckIn } from '@/features/shelters/hooks'
 import { showToast } from '@/shared/services/toast'
+import type { VulnerabilityType } from '@/features/shelters/api'
 
 interface RegisterPersonModalProps {
   open: boolean
@@ -8,7 +9,29 @@ interface RegisterPersonModalProps {
   onClose: () => void
 }
 
-const initialFormData = { fullName: '', cpf: '', birthDate: '', phone: '' }
+const initialFormData = { fullName: '', cpf: '', birthDate: '', phone: '', vulnerability: '' as VulnerabilityType | '', notes: '' }
+
+const vulnerabilityOptions: { value: VulnerabilityType; label: string }[] = [
+  { value: 'none', label: 'Nenhuma' },
+  { value: 'child', label: 'Criança' },
+  { value: 'elderly', label: 'Idoso(a)' },
+  { value: 'pregnant', label: 'Gestante' },
+  { value: 'disabled', label: 'Pessoa com deficiência' },
+  { value: 'chronic_illness', label: 'Doença crônica' },
+  { value: 'other', label: 'Outra' },
+]
+
+function formatCpf(value: string): string {
+  const digits = value.replace(/\D/g, '').slice(0, 11)
+  if (digits.length <= 3) return digits
+  if (digits.length <= 6) return `${digits.slice(0, 3)}.${digits.slice(3)}`
+  if (digits.length <= 9) return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6)}`
+  return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9)}`
+}
+
+function rawCpf(formatted: string): string {
+  return formatted.replace(/\D/g, '')
+}
 
 const buttonGradient =
   'rounded-[10px] bg-[linear-gradient(16deg,#1FA6A0_0.1%,#2F7DBB_57.69%,#3555A3_99.4%)] shadow-[0_10px_15px_-3px_rgba(31,166,160,0.30),0_4px_6px_-4px_rgba(31,166,160,0.30)]'
@@ -31,7 +54,14 @@ export default function RegisterPersonModal({ open, shelterId, onClose }: Regist
   function handleSubmit() {
     if (!formData.fullName || !formData.cpf || !formData.birthDate) return
     doCheckIn(
-      { name: formData.fullName, cpf: formData.cpf, birth_date: formData.birthDate, phone: formData.phone || undefined },
+      {
+        name: formData.fullName,
+        cpf: rawCpf(formData.cpf),
+        birth_date: formData.birthDate,
+        phone: formData.phone || undefined,
+        vulnerability: formData.vulnerability || undefined,
+        notes: formData.notes || undefined,
+      },
       {
         onSuccess: () => {
           showToast('Pessoa cadastrada com sucesso!', 'success')
@@ -68,13 +98,37 @@ export default function RegisterPersonModal({ open, shelterId, onClose }: Regist
               <Input placeholder="Digite o nome completo..." value={formData.fullName} onInput={(v) => update('fullName', v)} />
             </Question>
             <Question number={2} label="Qual é o CPF da pessoa?">
-              <Input placeholder="XXX.XXX.XXX-XX" value={formData.cpf} onInput={(v) => update('cpf', v)} />
+              <CpfInput value={formData.cpf} onInput={(v) => update('cpf', v)} />
             </Question>
             <Question number={3} label="Qual é a data de nascimento da pessoa?">
-              <Input placeholder="DD/MM/AAAA" value={formData.birthDate} onInput={(v) => update('birthDate', v)} />
+              <input
+                type="date"
+                value={formData.birthDate}
+                onInput={(e) => update('birthDate', (e.target as HTMLInputElement).value)}
+                className="input input-bordered w-full rounded-xl bg-white border-[#0A0A0A80] text-[#0A0A0A80] focus:border-[#1FA6A0] focus:outline-none"
+              />
             </Question>
-            <Question number={4} label="Qual é o telefone de contato? (Opcional)">
+            <Question number={4} label="Vulnerabilidade (Opcional)">
+              <select
+                value={formData.vulnerability}
+                onChange={(e) => update('vulnerability', (e.target as HTMLSelectElement).value as VulnerabilityType)}
+                className="select select-bordered w-full rounded-xl bg-white border-[#0A0A0A80] text-[#0A0A0A80] focus:border-[#1FA6A0] focus:outline-none"
+              >
+                <option value="">Selecione...</option>
+                {vulnerabilityOptions.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+              </select>
+            </Question>
+            <Question number={5} label="Qual é o telefone de contato? (Opcional)">
               <Input placeholder="Digite o telefone aqui..." value={formData.phone} onInput={(v) => update('phone', v)} />
+            </Question>
+            <Question number={6} label="Observações (Opcional)">
+              <textarea
+                placeholder="Informações adicionais sobre a pessoa..."
+                value={formData.notes}
+                onInput={(e) => update('notes', (e.target as HTMLTextAreaElement).value)}
+                rows={3}
+                className="textarea textarea-bordered w-full rounded-xl bg-white border-[#0A0A0A80] text-[#0A0A0A80] focus:border-[#1FA6A0] focus:outline-none"
+              />
             </Question>
           </div>
         </div>
@@ -118,6 +172,34 @@ function Input({ placeholder, value, onInput }: { placeholder: string; value: st
       onInput={(e) => onInput((e.target as HTMLInputElement).value)}
       className="input input-bordered w-full rounded-xl bg-white border-[#0A0A0A80] text-[#0A0A0A80] focus:border-[#1FA6A0] focus:outline-none"
     />
+  )
+}
+
+function CpfInput({ value, onInput }: { value: string; onInput: (v: string) => void }) {
+  const isComplete = rawCpf(value).length === 11
+  return (
+    <div className="relative">
+      <input
+        type="text"
+        inputMode="numeric"
+        placeholder="000.000.000-00"
+        value={value}
+        maxLength={14}
+        onInput={(e) => onInput(formatCpf((e.target as HTMLInputElement).value))}
+        className={`input input-bordered w-full rounded-xl bg-white focus:outline-none
+          ${isComplete
+            ? 'border-[#1FA6A0] text-[#0A0A0A]'
+            : 'border-[#0A0A0A80] text-[#0A0A0A80] focus:border-[#1FA6A0]'
+          }`}
+      />
+      {isComplete && (
+        <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#1FA6A0]">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M20 6 9 17l-5-5" />
+          </svg>
+        </span>
+      )}
+    </div>
   )
 }
 

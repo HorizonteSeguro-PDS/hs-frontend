@@ -1,21 +1,24 @@
 import { useState } from 'preact/hooks'
-import { Check, X, Search, UserCheck } from 'lucide-preact'
+import { Check, X, Search, UserCheck, ChevronDown } from 'lucide-preact'
 import { Navbar } from '@/shared/components/navbar/navbar'
 import { useSolicitacoes, useAprovarSolicitacao, useRejeitarSolicitacao } from '@/features/solicitacoes/hooks'
 import type { Solicitacao } from '@/features/solicitacoes/api'
 
 export default function Solicitacoes() {
   const [search, setSearch] = useState('')
+  const [showRevisadas, setShowRevisadas] = useState(false)
   const [confirmAction, setConfirmAction] = useState<{ type: 'aprovar' | 'rejeitar'; solicitacao: Solicitacao } | null>(null)
 
   const { data: solicitacoes = [], isLoading } = useSolicitacoes()
   const { mutate: aprovar, isPending: isAproving } = useAprovarSolicitacao()
   const { mutate: rejeitar, isPending: isRejecting } = useRejeitarSolicitacao()
 
-  const filtered = solicitacoes.filter((s) =>
+  const matches = (s: Solicitacao) =>
     s.name.toLowerCase().includes(search.toLowerCase()) ||
-    s.email.toLowerCase().includes(search.toLowerCase()),
-  )
+    s.email.toLowerCase().includes(search.toLowerCase())
+
+  const pendentes = solicitacoes.filter((s) => s.status === 'pending' && matches(s))
+  const revisadas = solicitacoes.filter((s) => s.status !== 'pending' && matches(s))
 
   function handleConfirm() {
     if (!confirmAction) return
@@ -55,51 +58,79 @@ export default function Solicitacoes() {
             <div className="flex items-center justify-center py-24 text-[#717182] text-sm">
               Carregando solicitações...
             </div>
-          ) : filtered.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-24 gap-3 text-[#717182]">
-              <UserCheck size={40} strokeWidth={1.5} />
-              <p className="text-sm">{search ? 'Nenhuma solicitação encontrada.' : 'Nenhuma solicitação pendente.'}</p>
-            </div>
           ) : (
-            <div className="bg-white border border-black/10 rounded-2xl shadow-sm overflow-hidden">
-              {/* Header da tabela */}
-              <div className="grid grid-cols-[1fr_1fr_1fr_1fr_1fr_180px] gap-4 px-6 py-3 border-b border-black/5 text-xs font-semibold text-[#0a0a0a]">
-                <span>Nome</span>
-                <span>E-mail</span>
-                <span>Telefone</span>
-                <span>Organização</span>
-                <span>Data de solicitação</span>
-                <span>Ações</span>
-              </div>
+            <div className="flex flex-col gap-6">
 
-              {/* Linhas */}
-              {filtered.map((s) => (
-                <div key={s.id} className="grid grid-cols-[1fr_1fr_1fr_1fr_1fr_180px] gap-4 px-6 py-4 border-b border-black/5 last:border-0 items-center hover:bg-gray-50/50 transition-colors">
-                  <p className="text-sm font-medium text-[#0a0a0a]">{s.name}</p>
-                  <p className="text-sm text-[#717182] truncate">{s.email}</p>
-                  <p className="text-sm text-[#717182]">{s.phone ?? '—'}</p>
-                  <p className="text-sm text-[#717182] truncate">{s.organization_name ?? s.organization_id ?? '—'}</p>
-                  <p className="text-sm text-[#717182]">
-                    {new Date(s.created_at).toLocaleDateString('pt-BR')}
-                  </p>
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => setConfirmAction({ type: 'aprovar', solicitacao: s })}
-                      className="flex items-center gap-1.5 h-8 px-3 rounded-lg text-xs font-medium bg-[#ecfdf5] text-[#009966] hover:bg-[#d1fae5] transition-colors cursor-pointer"
-                    >
-                      <Check size={13} />
-                      Aprovar
-                    </button>
-                    <button
-                      onClick={() => setConfirmAction({ type: 'rejeitar', solicitacao: s })}
-                      className="flex items-center gap-1.5 h-8 px-3 rounded-lg text-xs font-medium bg-[#fef2f2] text-[#e7000b] hover:bg-[#fee2e2] transition-colors cursor-pointer"
-                    >
-                      <X size={13} />
-                      Rejeitar
-                    </button>
-                  </div>
+              {/* Pendentes */}
+              {pendentes.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-24 gap-3 text-[#717182]">
+                  <UserCheck size={40} strokeWidth={1.5} />
+                  <p className="text-sm">{search ? 'Nenhuma solicitação encontrada.' : 'Nenhuma solicitação pendente.'}</p>
                 </div>
-              ))}
+              ) : (
+                <div className="bg-white border border-black/10 rounded-2xl shadow-sm overflow-hidden">
+                  <div className="grid grid-cols-[1fr_1fr_1fr_1fr_1fr_180px] gap-4 px-6 py-3 border-b border-black/5 text-xs font-semibold text-[#0a0a0a]">
+                    <span>Nome</span><span>E-mail</span><span>Telefone</span><span>Organização</span><span>Data</span><span>Ações</span>
+                  </div>
+                  {pendentes.map((s) => (
+                    <div key={s.id} className="grid grid-cols-[1fr_1fr_1fr_1fr_1fr_180px] gap-4 px-6 py-4 border-b border-black/5 last:border-0 items-center hover:bg-gray-50/50 transition-colors">
+                      <p className="text-sm font-medium text-[#0a0a0a]">{s.name}</p>
+                      <p className="text-sm text-[#717182] truncate">{s.email}</p>
+                      <p className="text-sm text-[#717182]">{s.phone ?? '—'}</p>
+                      <p className="text-sm text-[#717182] truncate">{s.new_organization_name ?? s.organization_id ?? '—'}</p>
+                      <p className="text-sm text-[#717182]">{new Date(s.created_at).toLocaleDateString('pt-BR')}</p>
+                      <div className="flex items-center gap-2">
+                        <button onClick={() => setConfirmAction({ type: 'aprovar', solicitacao: s })}
+                          className="flex items-center gap-1.5 h-8 px-3 rounded-lg text-xs font-medium bg-[#ecfdf5] text-[#009966] hover:bg-[#d1fae5] transition-colors cursor-pointer">
+                          <Check size={13} /> Aprovar
+                        </button>
+                        <button onClick={() => setConfirmAction({ type: 'rejeitar', solicitacao: s })}
+                          className="flex items-center gap-1.5 h-8 px-3 rounded-lg text-xs font-medium bg-[#fef2f2] text-[#e7000b] hover:bg-[#fee2e2] transition-colors cursor-pointer">
+                          <X size={13} /> Rejeitar
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Revisadas (colapsável) */}
+              {revisadas.length > 0 && (
+                <div className="bg-white border border-black/10 rounded-2xl shadow-sm overflow-hidden">
+                  <button
+                    type="button"
+                    onClick={() => setShowRevisadas((v) => !v)}
+                    className="flex w-full items-center justify-between px-6 py-4 text-sm font-semibold text-[#0a0a0a] hover:bg-gray-50/50 transition-colors"
+                  >
+                    <span>Revisadas ({revisadas.length})</span>
+                    <ChevronDown size={16} className={`text-[#717182] transition-transform ${showRevisadas ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {showRevisadas && (
+                    <>
+                      <div className="grid grid-cols-[1fr_1fr_1fr_1fr_1fr_100px] gap-4 px-6 py-3 border-t border-black/5 text-xs font-semibold text-[#0a0a0a]">
+                        <span>Nome</span><span>E-mail</span><span>Telefone</span><span>Organização</span><span>Data</span><span>Status</span>
+                      </div>
+                      {revisadas.map((s) => (
+                        <div key={s.id} className="grid grid-cols-[1fr_1fr_1fr_1fr_1fr_100px] gap-4 px-6 py-4 border-t border-black/5 items-center hover:bg-gray-50/50 transition-colors opacity-70">
+                          <p className="text-sm font-medium text-[#0a0a0a]">{s.name}</p>
+                          <p className="text-sm text-[#717182] truncate">{s.email}</p>
+                          <p className="text-sm text-[#717182]">{s.phone ?? '—'}</p>
+                          <p className="text-sm text-[#717182] truncate">{s.new_organization_name ?? s.organization_id ?? '—'}</p>
+                          <p className="text-sm text-[#717182]">{new Date(s.created_at).toLocaleDateString('pt-BR')}</p>
+                          <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium w-fit ${
+                            s.status === 'approved' ? 'bg-[#ecfdf5] text-[#009966]' : 'bg-[#fef2f2] text-[#e7000b]'
+                          }`}>
+                            {s.status === 'approved' ? <Check size={11} /> : <X size={11} />}
+                            {s.status === 'approved' ? 'Aprovado' : 'Rejeitado'}
+                          </span>
+                        </div>
+                      ))}
+                    </>
+                  )}
+                </div>
+              )}
+
             </div>
           )}
         </div>
