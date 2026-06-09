@@ -1,30 +1,33 @@
-import { useState } from 'preact/hooks';
+import { useState, useMemo } from 'preact/hooks';
+import { useAuth } from '@/shared/contexts/useAuthContext';
 import { SlidersHorizontal, ArrowUpDown, UserPlus, Search } from 'lucide-preact';
 import { PersonCard, type Person } from './shared/components/person-card';
 import RegisterPersonModal from '../components/people/RegisterPersonModal';
 import ConfirmPersonExitModal from '../components/people/ConfirmPersonExitModal';
+import type { ApiPerson } from '../api';
 
-const MOCK_PEOPLE: Person[] = [
-  { id: '1', name: 'Ana Silva', age: 28 },
-  { id: '2', name: 'Carlos Santos', age: 35 },
-  { id: '3', name: 'João Pedro', age: 31 },
-  { id: '4', name: 'Maria Oliveira', age: 42 },
-  { id: '5', name: 'Marcos Santos', age: 42 },
-  { id: '6', name: 'Maria Paula', age: 42 },
-  { id: '7', name: 'João Oliveira', age: 42 },
-  { id: '8', name: 'Clauderlan Batista', age: 42 },
-];
+function toPerson(p: ApiPerson, index: number): Person {
+  return { id: p.cpf || String(index), name: p.name, age: p.age };
+}
 
 interface PessoasProps {
   shelterName?: string;
+  shelterId?: string;
+  people?: ApiPerson[];
 }
 
-export const Pessoas = ({ shelterName = 'Abrigo' }: PessoasProps) => {
+const ALLOWED_ROLES = ['shelter_manager', 'crisis_manager', 'dev']
+
+export const Pessoas = ({ shelterName = 'Abrigo', shelterId = '', people = [] }: PessoasProps) => {
+  const { user } = useAuth()
+  const canManage = user.value?.role?.some((r) => ALLOWED_ROLES.includes(r)) ?? false
   const [search, setSearch] = useState('');
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [exitTarget, setExitTarget] = useState<Person | null>(null);
 
-  const filtered = MOCK_PEOPLE.filter((p) =>
+  const allPeople = useMemo(() => people.map(toPerson), [people]);
+
+  const filtered = allPeople.filter((p) =>
     p.name.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -53,13 +56,15 @@ export const Pessoas = ({ shelterName = 'Abrigo' }: PessoasProps) => {
             <ArrowUpDown size={14} />
             Ordenar
           </button>
-          <button
-            onClick={() => setIsRegisterOpen(true)}
-            className="flex items-center gap-1.5 bg-[#030213] rounded-lg h-8 px-2.5 text-white text-xs font-medium hover:bg-[#1a1a2e] transition-colors cursor-pointer"
-          >
-            <UserPlus size={14} />
-            Registrar Entrada
-          </button>
+          {canManage && (
+            <button
+              onClick={() => setIsRegisterOpen(true)}
+              className="flex items-center gap-1.5 bg-[#030213] rounded-lg h-8 px-2.5 text-white text-xs font-medium hover:bg-[#1a1a2e] transition-colors cursor-pointer"
+            >
+              <UserPlus size={14} />
+              Registrar Entrada
+            </button>
+          )}
         </div>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 mt-5">
@@ -70,10 +75,10 @@ export const Pessoas = ({ shelterName = 'Abrigo' }: PessoasProps) => {
             <PersonCard
               key={person.id}
               person={person}
-              onRegisterExit={(id) => {
-                const target = MOCK_PEOPLE.find((p) => p.id === id) ?? null;
+              onRegisterExit={canManage ? (id) => {
+                const target = allPeople.find((p) => p.id === id) ?? null;
                 setExitTarget(target);
-              }}
+              } : undefined}
             />
           ))
         )}
@@ -81,21 +86,16 @@ export const Pessoas = ({ shelterName = 'Abrigo' }: PessoasProps) => {
 
       <RegisterPersonModal
         open={isRegisterOpen}
+        shelterId={shelterId}
         onClose={() => setIsRegisterOpen(false)}
-        onSubmit={(data) => {
-          console.log('Registrar entrada de pessoa:', data);
-          setIsRegisterOpen(false);
-        }}
       />
 
       <ConfirmPersonExitModal
         open={exitTarget !== null}
+        shelterId={shelterId}
         personName={exitTarget?.name ?? ''}
+        personCpf={exitTarget?.id ?? ''}
         onClose={() => setExitTarget(null)}
-        onConfirm={() => {
-          console.log('Confirmar saída:', exitTarget?.id);
-          setExitTarget(null);
-        }}
       />
     </div>
   );
