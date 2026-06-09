@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'preact/hooks'
+import { useAuth } from '@/shared/contexts/useAuthContext'
 import { Navbar } from '@/shared/components/navbar/navbar'
 import { useCrises } from './hooks'
 import type { SortConfig, FilterConfig } from './types'
@@ -12,6 +13,7 @@ import CrisisSearchBar from './components/CrisisSearchBar'
 import CrisisCard from './components/CrisisCard'
 
 export default function Crises() {
+  const { isCrisisManager } = useAuth()
   const { data: crises, isLoading, isError } = useCrises()
 
   const [search, setSearch] = useState('')
@@ -98,7 +100,7 @@ export default function Crises() {
               )}
             </div>
             <CrisisSortButton onClick={() => setSortOpen(true)} />
-            <RegisterCrisisButton onClick={() => setRegisterOpen(true)} />
+            {isCrisisManager() && <RegisterCrisisButton onClick={() => setRegisterOpen(true)} />}
           </div>
         </div>
 
@@ -143,10 +145,6 @@ export default function Crises() {
       <RegisterCrisisModal
         open={registerOpen}
         onClose={() => setRegisterOpen(false)}
-        onSubmit={(data) => {
-          console.log('Cadastro de crise:', data)
-          setRegisterOpen(false)
-        }}
       />
 
       <CrisisSortModal

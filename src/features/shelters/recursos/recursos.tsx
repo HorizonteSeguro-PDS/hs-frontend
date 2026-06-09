@@ -44,11 +44,9 @@ interface RecursosProps {
   resources?: ApiResource[];
 }
 
-const ALLOWED_ROLES = ['shelter_manager', 'crisis_manager', 'dev']
-
 export const Recursos = ({ shelterName = 'Abrigo', shelterId = '', resources = [] }: RecursosProps) => {
-  const { user } = useAuth()
-  const canManage = user.value?.role?.some((r) => ALLOWED_ROLES.includes(r)) ?? false
+  const { canManageShelter } = useAuth()
+  const canManage = canManageShelter(shelterId)
   const [sortConfig, setSortConfig] = useState<SortConfig>({
     field: 'data',
     direction: 'desc',

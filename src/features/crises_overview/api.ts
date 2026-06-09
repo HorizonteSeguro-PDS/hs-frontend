@@ -41,6 +41,43 @@ interface CrisisShelters extends Crisis {
 }
 
 
+export interface CreateShelterPayload {
+  crisis_id: string
+  name: string
+  phone: string
+  email: string
+  description: string
+  zip_code: string
+  address: string
+  neighborhood: string
+  city: string
+  state: string
+  latitude: number | null
+  longitude: number | null
+  capacity: number
+  current_occupancy: number
+  available_spots: number
+  access_conditions: string
+  special_needs: string
+}
+
+export const createShelter = async (payload: CreateShelterPayload): Promise<void> => {
+  const userRaw = localStorage.getItem('auth_user')
+  const user = userRaw ? JSON.parse(userRaw) : null
+
+  const response = await fetch(`${apiUrl}/shelters`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(user?.token ? { Authorization: `Bearer ${user.token}` } : {}),
+    },
+    body: JSON.stringify(payload),
+  })
+  if (!response.ok) {
+    throw new Error(`Error creating shelter: ${response.statusText}`)
+  }
+}
+
 export const getShelters = async (crisis_id: string): Promise<CrisisShelters> => {
   const userRaw = localStorage.getItem('auth_user');
   const user = userRaw ? JSON.parse(userRaw) : null;

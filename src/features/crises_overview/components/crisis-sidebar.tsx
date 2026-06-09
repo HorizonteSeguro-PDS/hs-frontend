@@ -1,4 +1,5 @@
-import { MapPin, Calendar, Building2, Users, Info } from 'lucide-preact';
+import { MapPin, Calendar, Building2, Users, Info, ArrowLeft } from 'lucide-preact';
+import { useLocation } from 'wouter-preact';
 import type { Crisis } from '@/features/crises/types';
 
 const SEVERITY_LABELS: Record<number, string> = {
@@ -23,6 +24,7 @@ interface CrisisSidebarProps {
 }
 
 export function CrisisSidebar({ crisis, people_count }: CrisisSidebarProps) {
+  const [, navigate] = useLocation();
   const severityLabel = SEVERITY_LABELS[crisis.severity] ?? 'MÉDIA';
   const severityStyle = SEVERITY_STYLES[crisis.severity] ?? SEVERITY_STYLES[3];
 
@@ -32,6 +34,14 @@ export function CrisisSidebar({ crisis, people_count }: CrisisSidebarProps) {
 
   return (
     <div className="bg-white border border-[rgba(0,0,0,0.1)] rounded-[14px] p-5 flex flex-col gap-5 w-[270px] shrink-0 self-start">
+      <button
+        onClick={() => navigate('/crises')}
+        className="flex items-center gap-1.5 text-sm text-[#717182] hover:text-[#0a0a0a] transition-colors w-fit cursor-pointer"
+      >
+        <ArrowLeft size={15} />
+        Todas as crises
+      </button>
+      <div className="h-px bg-[rgba(0,0,0,0.1)]" />
       <div className="flex items-start justify-between gap-2">
         <h2 className="text-[#0a0a0a] font-bold text-lg leading-tight">{crisis.crisis_name}</h2>
         <span className={`shrink-0 text-xs font-semibold px-2 py-0.5 rounded-lg ${severityStyle.badgeBg} ${severityStyle.badgeText}`}>

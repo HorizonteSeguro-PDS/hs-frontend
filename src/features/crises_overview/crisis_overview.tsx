@@ -1,5 +1,7 @@
 import { useState, useMemo } from 'preact/hooks';
 import { Search, SlidersHorizontal, ArrowUpDown, List, Map, Building2 } from 'lucide-preact';
+import { useLocation } from 'wouter-preact';
+import { useAuth } from '@/shared/contexts/useAuthContext';
 import type { RouteComponentProps } from 'wouter-preact';
 import { useShelters } from './hooks';
 import { ShelterCard, getShelterStatus } from './components/shelter-card';
@@ -20,6 +22,8 @@ const SORT_LABELS: Record<ShelterSortConfig['field'], string> = {
 
 export function CrisisOverview({ params }: RouteComponentProps<{ id: string }>) {
   const crisisId = params.id;
+  const [, navigate] = useLocation();
+  const { isCrisisManager } = useAuth();
   const { data, isPending, isError } = useShelters(crisisId);
 
   const [search, setSearch]             = useState('');
@@ -92,14 +96,16 @@ export function CrisisOverview({ params }: RouteComponentProps<{ id: string }>) 
           {/* Cabeçalho */}
           <div className="flex items-center justify-between gap-4">
             <h1 className="text-[#0a0a0a] text-2xl font-bold leading-tight">Abrigos</h1>
-            <button
-              onClick={() => setIsRegisterOpen(true)}
-              className="flex items-center gap-2 h-9 px-4 rounded-[10px] text-sm font-medium text-white shrink-0 cursor-pointer transition-opacity hover:opacity-90"
-              style={{ background: 'linear-gradient(3deg, #1FA6A0 0%, #2F7DBB 58%, #3555A3 99%)' }}
-            >
-              <Building2 size={16} />
-              Cadastrar
-            </button>
+            {isCrisisManager() && (
+              <button
+                onClick={() => setIsRegisterOpen(true)}
+                className="flex items-center gap-2 h-9 px-4 rounded-[10px] text-sm font-medium text-white shrink-0 cursor-pointer transition-opacity hover:opacity-90"
+                style={{ background: 'linear-gradient(3deg, #1FA6A0 0%, #2F7DBB 58%, #3555A3 99%)' }}
+              >
+                <Building2 size={16} />
+                Cadastrar
+              </button>
+            )}
           </div>
 
           {/* Barra de pesquisa + botões de filtro/ordenação */}
@@ -172,7 +178,7 @@ export function CrisisOverview({ params }: RouteComponentProps<{ id: string }>) 
                   <ShelterCard
                     key={shelter.id}
                     {...shelter}
-                    onDetails={(id) => console.log('Ver detalhes:', id)}
+                    onDetails={(shelterId) => navigate(`/abrigo?crisis_id=${crisisId}&shelter_id=${shelterId}`)}
                   />
                 ))}
               </div>
@@ -186,7 +192,7 @@ export function CrisisOverview({ params }: RouteComponentProps<{ id: string }>) 
       <RegisterShelterModal
         open={isRegisterOpen}
         onClose={() => setIsRegisterOpen(false)}
-        onSubmit={(data) => console.log('Cadastro de abrigo:', data)}
+        crisisId={crisisId}
       />
 
       <ShelterFilterModal
