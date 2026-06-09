@@ -11,6 +11,7 @@ export const useSolicitacoes = () => {
     queryKey: ['solicitacoes'],
     queryFn: () => fetchSolicitacoes(token),
     enabled: !!token,
+    staleTime: 60_000,
   });
 };
 

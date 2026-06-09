@@ -44,6 +44,10 @@ const orgTypeOptions = [
   { value: 'other', label: 'Outro' },
 ]
 
+const inputClass = 'input input-bordered w-full rounded-xl bg-white border-[#0A0A0A80] text-[#0A0A0A80] focus:border-[#1FA6A0] focus:outline-none'
+const inputSmClass = 'input input-bordered input-sm w-full rounded-lg bg-white border-[#0A0A0A80] text-[#0A0A0A80] focus:border-[#1FA6A0] focus:outline-none'
+const selectSmClass = 'select select-bordered select-sm w-full rounded-lg bg-white border-[#0A0A0A80] text-[#0A0A0A80] focus:border-[#1FA6A0] focus:outline-none'
+
 export default function Register() {
   const [step, setStep] = useState<1 | 2>(1)
   const [formData, setFormData] = useState<FormData>(initialFormData)
@@ -57,7 +61,7 @@ export default function Register() {
 
   const { mutate: registerExisting, isPending: isPendingExisting } = useRegisterExistingOrg()
   const { mutate: registerNew, isPending: isPendingNew } = useRegisterNewOrg()
-  const { data: organizations = [], isLoading: isLoadingOrgs } = useOrganizations()
+  const { data: organizations = [], isLoading: isLoadingOrgs } = useOrganizations(!showNewOrg)
 
   const isPending = isPendingExisting || isPendingNew
 
@@ -100,15 +104,13 @@ export default function Register() {
       setLocation('/login')
     }
 
+    const base = { name: formData.name, email: formData.email, password: formData.password, phone: formData.phone, roles: ['shelter_manager'] as ['shelter_manager'] }
+
     if (showNewOrg) {
       if (!newOrgData.organization_name.trim()) return
       registerNew(
         {
-          name: formData.name,
-          email: formData.email,
-          password: formData.password,
-          phone: formData.phone,
-          roles: ['shelter_manager'],
+          ...base,
           organization_name: newOrgData.organization_name,
           organization_type: newOrgData.organization_type,
           organization_cnpj: newOrgData.organization_cnpj || null,
@@ -117,23 +119,9 @@ export default function Register() {
         { onSuccess },
       )
     } else {
-      registerExisting(
-        {
-          name: formData.name,
-          email: formData.email,
-          password: formData.password,
-          phone: formData.phone,
-          organization_id: formData.organization_id,
-          roles: ['shelter_manager'],
-        },
-        { onSuccess },
-      )
+      registerExisting({ ...base, organization_id: formData.organization_id }, { onSuccess })
     }
   }
-
-  const inputClass = 'input input-bordered w-full rounded-xl bg-white border-[#0A0A0A80] text-[#0A0A0A80] focus:border-[#1FA6A0] focus:outline-none'
-  const inputSmClass = 'input input-bordered input-sm w-full rounded-lg bg-white border-[#0A0A0A80] text-[#0A0A0A80] focus:border-[#1FA6A0] focus:outline-none'
-  const selectSmClass = 'select select-bordered select-sm w-full rounded-lg bg-white border-[#0A0A0A80] text-[#0A0A0A80] focus:border-[#1FA6A0] focus:outline-none'
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-white p-4">
