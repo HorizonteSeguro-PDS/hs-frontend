@@ -1,4 +1,4 @@
-import { useShelters } from '@/features/shelters/hooks';
+import { useShelters } from '@/features/crises_overview/hooks';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';

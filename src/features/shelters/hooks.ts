@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'preact/hooks'
 import { lookupCep, searchAddress, type AddressResult, type CepAddress } from './api'
-import { useQuery } from '@tanstack/react-query';
-import { getShelters } from './api';
 
 export function useAddressSearch(query: string) {
   const [results, setResults] = useState<AddressResult[]>([])
@@ -48,14 +46,4 @@ export function useCepLookup(cep: string) {
   }, [cep])
 
   return { address, isLoading }
-}
-
-export const useShelters = (crisis_id: string) => {
-  return useQuery({
-    queryKey: ['shelters', crisis_id],
-    queryFn: () => getShelters(crisis_id),
-    staleTime: 5 * 60 * 1000,
-    retry: 2,
-    retryDelay: 1000 * 15,
-  });
 }

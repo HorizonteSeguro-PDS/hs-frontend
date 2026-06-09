@@ -1,6 +1,7 @@
 import './app.css'
 import Crises from '../features/crises/crises.tsx'
 import { Route, Switch, Redirect } from 'wouter-preact'
+import { CrisisOverview } from '../features/crises_overview/crisis_overview.tsx'
 import Home from '../features/shelters/home.tsx'
 import { ShelterPage } from '@/features/shelters/shelter.tsx'
 import { Suspense } from 'preact/compat'
@@ -22,6 +23,7 @@ export function App() {
               <Route path="/crises/:id" component={Crises} />
               <Route path="/crises/:id/abrigos" component={Crises} />
               <Route path="/abrigo" component={ShelterPage} />
+              <Route path="/mapa" component={CrisisOverview} />
             </Switch>
           </QueryClientProvider>
         </AuthProvider>
