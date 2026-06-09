@@ -1,6 +1,6 @@
 import './app.css'
 import Crises from '../features/crises/crises.tsx'
-import { Route, Switch} from 'wouter-preact'
+import { Route, Switch, Redirect } from 'wouter-preact'
 import Auth from '../features/auth/auth.tsx'
 import Register from '../features/register/register.tsx'
 import Solicitacoes from '../features/solicitacoes/solicitacoes.tsx'
@@ -26,6 +26,7 @@ export function App() {
               <Route path="/crises/:id" component={CrisisOverview} />
               <Route path="/abrigo" component={ShelterPage} />
               <Route path="/solicitacoes" component={Solicitacoes} />
+              <Route path="/"><Redirect to="/crises/all" /></Route>
             </Switch>
           </QueryClientProvider>
         </AuthProvider>
