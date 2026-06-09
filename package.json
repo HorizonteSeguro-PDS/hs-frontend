@@ -9,20 +9,25 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@preact/signals": "^2.9.0",
+    "@preact/signals": "^2.9.1",
     "@tailwindcss/vite": "^4.3.0",
     "@tanstack/preact-query": "^5.100.14",
+    "@tanstack/react-query": "^5.101.0",
     "daisyui": "^5.5.20",
     "dexie": "^4.4.2",
     "dexie-react-hooks": "^4.4.0",
     "leaflet": "^1.9.4",
+    "lucide-preact": "^1.17.0",
     "preact": "^10.29.1",
+    "react-leaflet": "^4.2.1",
+    "react-query": "^3.39.3",
     "tailwindcss": "^4.3.0",
     "wouter-preact": "^3.10.0"
   },
   "devDependencies": {
     "@preact/preset-vite": "^2.10.5",
     "@tanstack/eslint-plugin-query": "^5.100.14",
+    "@types/leaflet": "^1.9.21",
     "@types/node": "^24.12.3",
     "typescript": "~6.0.2",
     "vite": "^8.0.12",
