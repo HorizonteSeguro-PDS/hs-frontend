@@ -17,7 +17,7 @@ export const useLogin = () => {
                 id: userData.user.id,
                 name: userData.user.name,
                 email: userData.user.email,
-                role: userData.user.role,
+                role: userData.user.roles ?? userData.user.role ?? [],
                 token: userData.access_token,
             };
 
